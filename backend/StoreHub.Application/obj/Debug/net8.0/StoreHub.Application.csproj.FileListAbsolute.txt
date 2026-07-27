@@ -1,0 +1,15 @@
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\bin\Debug\net8.0\StoreHub.Application.deps.json
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\bin\Debug\net8.0\StoreHub.Application.dll
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\bin\Debug\net8.0\StoreHub.Application.pdb
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\bin\Debug\net8.0\StoreHub.Domain.dll
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\bin\Debug\net8.0\StoreHub.Domain.pdb
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\StoreHub.Application.csproj.AssemblyReference.cache
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\StoreHub.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\StoreHub.Application.AssemblyInfoInputs.cache
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\StoreHub.Application.AssemblyInfo.cs
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\StoreHub.Application.csproj.CoreCompileInputs.cache
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\StoreHub.018D45E5.Up2Date
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\StoreHub.Application.dll
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\refint\StoreHub.Application.dll
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\StoreHub.Application.pdb
+C:\Users\Nadiminti.Ganesh\source\repos\StoreHub\backend\StoreHub.Application\obj\Debug\net8.0\ref\StoreHub.Application.dll
