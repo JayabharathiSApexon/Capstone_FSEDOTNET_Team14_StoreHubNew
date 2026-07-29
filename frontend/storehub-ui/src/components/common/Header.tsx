@@ -1,11 +1,9 @@
 function Header() {
     return (
-        <nav className="navbar navbar-light bg-white border-bottom px-4">
-            <h5 className="mb-0">Product Management</h5>
-
-            <div>
-                <span className="fw-semibold">Admin</span>
-            </div>
+        <nav className="navbar navbar-light bg-white border-bottom px-4 justify-content-end">
+            <span className="fw-semibold">
+                Admin
+            </span>
         </nav>
     );
 }

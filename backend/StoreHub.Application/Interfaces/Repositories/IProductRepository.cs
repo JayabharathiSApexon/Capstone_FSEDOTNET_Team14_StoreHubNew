@@ -17,6 +17,7 @@ namespace StoreHub.Application.Interfaces.Repositories
 
         Task<Product> DeleteProductAsync(Product product);
 
-        Task DeleteProductImagesAsync(Guid productId);
+        Task ReplaceProductImageAsync(Guid productId, ProductImage newImage);
+
     }
 }

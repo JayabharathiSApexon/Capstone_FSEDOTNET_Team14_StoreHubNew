@@ -27,5 +27,16 @@ namespace StoreHub.Infrastructure.Data
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
         public DbSet<Wishlist> Wishlists => Set<Wishlist>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Product>()
+                .HasMany(p => p.ProductImages)
+                .WithOne(pi => pi.Product)
+                .HasForeignKey(pi => pi.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }
