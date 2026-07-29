@@ -48,8 +48,6 @@ namespace StoreHub.Infrastructure.Repositories
 
         public async Task<Product> UpdateProductAsync(Product product)
         {
-            _context.Products.Update(product);
-
             await _context.SaveChangesAsync();
 
             return await _context.Products
@@ -69,13 +67,19 @@ namespace StoreHub.Infrastructure.Repositories
             return product;
         }
 
-        public async Task DeleteProductImagesAsync(Guid productId)
+        public async Task ReplaceProductImageAsync(Guid productId, ProductImage newImage)
         {
-            var images = await _context.ProductImages
-                .Where(image => image.ProductId == productId)
+            var existingImages = await _context.ProductImages
+                .Where(x => x.ProductId == productId)
                 .ToListAsync();
 
-            _context.ProductImages.RemoveRange(images);
+            if (existingImages.Any())
+            {
+                _context.ProductImages.RemoveRange(existingImages);
+            }
+
+            await _context.ProductImages.AddAsync(newImage);
         }
+
     }
 }

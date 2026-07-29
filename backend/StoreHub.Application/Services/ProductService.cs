@@ -70,11 +70,8 @@ namespace StoreHub.Application.Services
             var product = await _productRepository.GetProductByIdAsync(request.Id);
 
             if (product == null)
-            {
                 throw new Exception("Product not found.");
-            }
 
-            // Update product details
             product.Name = request.Name;
             product.CategoryId = request.CategoryId;
             product.Description = request.Description;
@@ -85,29 +82,23 @@ namespace StoreHub.Application.Services
             product.IsActive = request.IsActive;
             product.UpdatedDate = DateTime.UtcNow;
 
-            // Update images only if new images are uploaded
+            // Replace image only when a new one is uploaded
             if (request.Images != null && request.Images.Any())
             {
-                await _productRepository.DeleteProductImagesAsync(product.Id);
+                var image = request.Images.First();
 
-                if (product.ProductImages != null)
-                {
-                    product.ProductImages.Clear();
-                }
-
-                foreach (var image in request.Images)
-                {
-                    product.ProductImages?.Add(new ProductImage
+                await _productRepository.ReplaceProductImageAsync( product.Id,
+                    new ProductImage
                     {
                         Id = Guid.NewGuid(),
                         ProductId = product.Id,
                         ImageUrl = image.ImageUrl,
-                        IsPrimary = image.IsPrimary,
-                        DisplayOrder = image.DisplayOrder,
+                        IsPrimary = true,
+                        DisplayOrder = 1,
                         IsActive = true,
-                        CreatedDate = DateTime.UtcNow
+                        CreatedDate = DateTime.UtcNow,
+                        UpdatedDate = DateTime.UtcNow
                     });
-                }
             }
 
             var updatedProduct = await _productRepository.UpdateProductAsync(product);

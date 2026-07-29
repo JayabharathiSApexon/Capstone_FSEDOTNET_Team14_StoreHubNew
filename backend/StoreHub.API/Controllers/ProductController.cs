@@ -55,6 +55,8 @@ namespace StoreHub.API.Controllers
 
             var productRequest = _mapper.Map<ProductRequestModel>(request);
 
+            productRequest.Images = new List<ProductImageRequestModel>();
+
             int displayOrder = 1;
 
             foreach (var image in request.Images)

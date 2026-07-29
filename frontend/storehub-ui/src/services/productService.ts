@@ -41,8 +41,36 @@ export const createProduct = async (product: ProductRequest) => {
     return response.data;
 };
 
-export const updateProduct = async (id: string, product: ProductRequest) => {
-    const response = await api.put(`/Product/${id}`, product);
+export const updateProduct = async (
+    id: string,
+    product: ProductRequest
+) => {
+
+    const formData = new FormData();
+
+    formData.append("id", product.id ?? "");
+    formData.append("name", product.name);
+    formData.append("categoryId", product.categoryId);
+    formData.append("description", product.description);
+    formData.append("brand", product.brand);
+    formData.append("price", product.price.toString());
+    formData.append("stockQuantity", product.stockQuantity.toString());
+    formData.append("isFeatured", product.isFeatured.toString());
+    formData.append("isActive", product.isActive.toString());
+
+    product.images.forEach(image => {
+        formData.append("images", image);
+    });
+
+    const response = await api.put(
+        `/Product/${id}`,
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+
     return response.data;
 };
 

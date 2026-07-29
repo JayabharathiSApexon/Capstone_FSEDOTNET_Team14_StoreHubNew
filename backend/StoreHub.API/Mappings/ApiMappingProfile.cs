@@ -8,8 +8,8 @@ namespace StoreHub.API.Mappings
     {
         public ApiMappingProfile()
         {
-            CreateMap<CreateProductRequest, ProductRequestModel>();
-            CreateMap<UpdateProductRequest, ProductRequestModel>();
+            CreateMap<CreateProductRequest, ProductRequestModel>().ForMember(dest => dest.Images, opt => opt.Ignore());
+            CreateMap<UpdateProductRequest, ProductRequestModel>().ForMember(dest => dest.Images, opt => opt.Ignore());
         }
     }
 }
