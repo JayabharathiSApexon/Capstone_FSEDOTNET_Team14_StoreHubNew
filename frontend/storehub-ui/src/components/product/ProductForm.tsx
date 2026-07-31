@@ -266,12 +266,13 @@ function ProductForm({
                     type="file"
                     className="form-control"
                     accept="image/*"
+                    multiple
                     onChange={handleImageChange}
                 />
 
                 {formData.images.length > 0 && (
                     <small className="text-success">
-                        {formData.images.length} image selected.
+                        {formData.images.length} image{formData.images.length > 1 ? "s" : ""} selected.
                     </small>
                 )}
 

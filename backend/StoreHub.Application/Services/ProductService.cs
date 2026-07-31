@@ -82,23 +82,25 @@ namespace StoreHub.Application.Services
             product.IsActive = request.IsActive;
             product.UpdatedDate = DateTime.UtcNow;
 
-            // Replace image only when a new one is uploaded
             if (request.Images != null && request.Images.Any())
             {
-                var image = request.Images.First();
+                int displayOrder = 1;
 
-                await _productRepository.ReplaceProductImageAsync( product.Id,
-                    new ProductImage
+                var productImages = request.Images
+                    .Select(image => new ProductImage
                     {
                         Id = Guid.NewGuid(),
                         ProductId = product.Id,
                         ImageUrl = image.ImageUrl,
-                        IsPrimary = true,
-                        DisplayOrder = 1,
+                        IsPrimary = displayOrder == 1,
+                        DisplayOrder = displayOrder++,
                         IsActive = true,
                         CreatedDate = DateTime.UtcNow,
                         UpdatedDate = DateTime.UtcNow
-                    });
+                    })
+                    .ToList();
+
+                await _productRepository.ReplaceProductImagesAsync(product.Id, productImages);
             }
 
             var updatedProduct = await _productRepository.UpdateProductAsync(product);
