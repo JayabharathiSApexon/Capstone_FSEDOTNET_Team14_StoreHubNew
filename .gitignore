@@ -35,9 +35,9 @@ packages/
 # ==========================
 # React / Node
 # ==========================
-frontend/node_modules/
-frontend/dist/
-frontend/.vite/
+frontend/storehub-ui/node_modules/
+frontend/storehub-ui/dist/
+frontend/storehub-ui/.vite/
 
 # npm
 npm-debug.log*
@@ -46,10 +46,10 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Environment files
-frontend/.env
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.production.local
+frontend/storehub-ui/.env
+frontend/storehub-ui/.env.local
+frontend/storehub-ui/.env.development.local
+frontend/storehub-ui/.env.production.local
 
 # ==========================
 # OS Files
