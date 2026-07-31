@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import Layout from "../../components/common/Layout";
-import Pagination from "../../components/common/Pagination";
-import InventoryTable from "../../components/inventory/InventoryTable";
-import { ProductResponse } from "../../models/product/ProductResponse";
-import { getProducts } from "../../services/productService";
+import Layout from "../../../components/admin/AdminLayout";
+import Pagination from "../../../components/common/Pagination";
+import InventoryTable from "../../../components/admin/inventory/InventoryTable";
+import { ProductResponse } from "../../../models/product/ProductResponse";
+import { getProducts } from "../../../services/productService";
 
 function InventoryList() {
 

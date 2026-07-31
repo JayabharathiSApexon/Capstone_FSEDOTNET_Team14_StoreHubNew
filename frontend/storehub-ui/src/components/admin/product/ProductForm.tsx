@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ProductRequest } from "../../models/product/ProductRequest";
-import { CategoryResponse } from "../../models/category/CategoryResponse";
+import { ProductRequest } from "../../../models/product/ProductRequest";
+import { CategoryResponse } from "../../../models/category/CategoryResponse";
 
 interface ProductFormProps {
     product?: ProductRequest;

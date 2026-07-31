@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import OrderResponse from "../../models/order/OrderResponse";
+import OrderResponse from "../../../models/order/OrderResponse";
 
 interface UpdateStatusModalProps {
     show: boolean;

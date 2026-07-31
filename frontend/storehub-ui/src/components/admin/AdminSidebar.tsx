@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import {
+    FaShoppingBag,
     FaTachometerAlt,
     FaBoxOpen,
     FaShoppingCart,
@@ -10,7 +11,7 @@ import {
     FaSignOutAlt,
 } from "react-icons/fa";
 
-function Sidebar() {
+function AdminSidebar() {
     const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
         `nav-link d-flex align-items-center mb-2 px-3 py-2 rounded ${isActive
             ? "bg-primary text-white"
@@ -22,20 +23,37 @@ function Sidebar() {
             className="bg-dark text-white d-flex flex-column p-3"
             style={{ width: "240px", minHeight: "100vh" }}
         >
-            <h4 className="mb-4 text-center fw-bold">
-                StoreHub
-            </h4>
+            <div className="d-flex align-items-center justify-content-center mb-4">
+
+                <FaShoppingBag
+                    className="me-2 text-primary"
+                    size={24}
+                />
+
+                <h4 className="fw-bold mb-0">
+                    StoreHub
+                </h4>
+
+            </div>
 
             <NavLink
-                to="/dashboard"
+                to="/admin/dashboard"
                 className={getNavLinkClass}
             >
                 <FaTachometerAlt className="me-2" />
                 Dashboard
             </NavLink>
 
+            {/* <NavLink
+                to="/customer"
+                className={getNavLinkClass}
+            >
+                <FaBoxOpen className="me-2" />
+                Customer UI
+            </NavLink> */}
+
             <NavLink
-                to="/products"
+                to="/admin/products"
                 className={getNavLinkClass}
             >
                 <FaBoxOpen className="me-2" />
@@ -43,7 +61,7 @@ function Sidebar() {
             </NavLink>
 
             <NavLink
-                to="/orders"
+                to="/admin/orders"
                 className={getNavLinkClass}
             >
                 <FaShoppingCart className="me-2" />
@@ -51,7 +69,7 @@ function Sidebar() {
             </NavLink>
 
             <NavLink
-                to="/inventory"
+                to="/admin/inventory"
                 className={getNavLinkClass}
             >
                 <FaWarehouse className="me-2" />
@@ -59,7 +77,7 @@ function Sidebar() {
             </NavLink>
 
             <NavLink
-                to="/users"
+                to="/admin/users"
                 className={getNavLinkClass}
             >
                 <FaUsers className="me-2" />
@@ -67,7 +85,7 @@ function Sidebar() {
             </NavLink>
 
             <NavLink
-                to="/reports"
+                to="/admin/reports"
                 className={getNavLinkClass}
             >
                 <FaChartBar className="me-2" />
@@ -75,7 +93,7 @@ function Sidebar() {
             </NavLink>
 
             <NavLink
-                to="/settings"
+                to="/admin/settings"
                 className={getNavLinkClass}
             >
                 <FaCog className="me-2" />
@@ -95,4 +113,4 @@ function Sidebar() {
     );
 }
 
-export default Sidebar;
+export default AdminSidebar;

@@ -1,4 +1,4 @@
-function Header() {
+function AdminHeader() {
     return (
         <nav className="navbar navbar-light bg-white border-bottom px-4 justify-content-end">
             <span className="fw-semibold">
@@ -8,4 +8,4 @@ function Header() {
     );
 }
 
-export default Header;
+export default AdminHeader;

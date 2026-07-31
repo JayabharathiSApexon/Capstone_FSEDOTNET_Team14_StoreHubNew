@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import Layout from "../../components/common/Layout";
-import ProductTable from "../../components/product/ProductTable";
-import ProductModal from "../../components/product/ProductModal";
-import MessageModal from "../../components/common/MessageModal";
-import ConfirmModal from "../../components/common/ConfirmModal";
-import { ProductRequest } from "../../models/product/ProductRequest";
-import { ProductResponse } from "../../models/product/ProductResponse";
-import { createProduct, updateProduct, getProducts, deleteProduct } from "../../services/productService";
-import { getCategories } from "../../services/categoryService";
-import { CategoryResponse } from "../../models/category/CategoryResponse";
+import Layout from "../../../components/admin/AdminLayout";
+import ProductTable from "../../../components/admin/product/ProductTable";
+import ProductModal from "../../../components/admin/product/ProductModal";
+import MessageModal from "../../../components/common/MessageModal";
+import ConfirmModal from "../../../components/common/ConfirmModal";
+import { ProductRequest } from "../../../models/product/ProductRequest";
+import { ProductResponse } from "../../../models/product/ProductResponse";
+import { createProduct, updateProduct, getProducts, deleteProduct } from "../../../services/productService";
+import { getCategories } from "../../../services/categoryService";
+import { CategoryResponse } from "../../../models/category/CategoryResponse";
 
 function ProductList() {
 

@@ -1,7 +1,7 @@
 import { Modal } from "react-bootstrap";
 import ProductForm from "./ProductForm";
-import { ProductRequest } from "../../models/product/ProductRequest";
-import { CategoryResponse } from "../../models/category/CategoryResponse";
+import { ProductRequest } from "../../../models/product/ProductRequest";
+import { CategoryResponse } from "../../../models/category/CategoryResponse";
 
 interface ProductModalProps {
     show: boolean;

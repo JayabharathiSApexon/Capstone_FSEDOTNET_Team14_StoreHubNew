@@ -1,4 +1,4 @@
-import { ProductResponse } from "../../models/product/ProductResponse";
+import { ProductResponse } from "../../../models/product/ProductResponse";
 
 interface InventoryTableProps {
     inventory: ProductResponse[];

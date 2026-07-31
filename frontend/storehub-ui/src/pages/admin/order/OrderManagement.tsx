@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import Layout from "../../components/common/Layout";
-import Pagination from "../../components/common/Pagination";
-import OrderResponse from "../../models/order/OrderResponse";
-import OrderTable from "../../components/order/OrderTable";
-import UpdateStatusModal from "../../components/order/UpdateStatusModal";
-import { getOrders, updateOrderStatus } from "../../services/orderService";
+import Layout from "../../../components/admin/AdminLayout";
+import Pagination from "../../../components/common/Pagination";
+import OrderResponse from "../../../models/order/OrderResponse";
+import OrderTable from "../../../components/admin/order/OrderTable";
+import UpdateStatusModal from "../../../components/admin/order/UpdateStatusModal";
+import { getOrders, updateOrderStatus } from "../../../services/orderService";
 
 function OrderManagement() {
 

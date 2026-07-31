@@ -1,42 +1,48 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import ProductList from "../pages/product/ProductList";
-import InventoryList from "../pages/Inventory/InventoryList";
-import OrderManagement from "../pages/order/OrderManagement";
+    import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+    import ProductList from "../pages/admin/product/ProductList";
+    import InventoryList from "../pages/admin/Inventory/InventoryList";
+    import OrderManagement from "../pages/admin/order/OrderManagement";
+    import ProductListing from "../pages/customer/ProductListing";
 
-function AppRoutes() {
+    function AppRoutes() {
 
-    return (
+        return (
 
-        <BrowserRouter>
+            <BrowserRouter>
 
-            <Routes>
+                <Routes>
 
-                <Route
-                    path="/"
-                    element={<Navigate to="/products" />}
-                />
+                    {/* <Route
+                        path="/customer"
+                        element={<ProductListing />}
+                    /> */}
 
-                <Route
-                    path="/products"
-                    element={<ProductList />}
-                />
+                    <Route
+                        path="/"
+                        element={<Navigate to="/admin/products" />}
+                    />
 
-                <Route
-                    path="/inventory"
-                    element={<InventoryList />}
-                />
+                    <Route
+                        path="/admin/products"
+                        element={<ProductList />}
+                    />
 
-                <Route
-                    path="/orders"
-                    element={<OrderManagement />}
-                />
+                    <Route
+                        path="/admin/inventory"
+                        element={<InventoryList />}
+                    />
 
-            </Routes>
+                    <Route
+                        path="/admin/orders"
+                        element={<OrderManagement />}
+                    />
 
-        </BrowserRouter>
+                </Routes>
 
-    );
+            </BrowserRouter>
 
-}
+        );
 
-export default AppRoutes;
+    }
+
+    export default AppRoutes;

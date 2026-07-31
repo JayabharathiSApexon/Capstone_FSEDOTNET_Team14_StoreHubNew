@@ -1,15 +1,15 @@
 import { ReactNode } from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
+import AdminSidebar from "../admin/AdminSidebar";
+import Header from "./AdminHeader";
 
-interface LayoutProps {
+interface AdminLayoutProps {
     children: ReactNode;
 }
 
-function Layout({ children }: LayoutProps) {
+function AdminLayout({ children }: AdminLayoutProps) {
     return (
         <div className="d-flex">
-            <Sidebar />
+            <AdminSidebar />
 
             <div className="flex-grow-1">
                 <Header />
@@ -22,4 +22,4 @@ function Layout({ children }: LayoutProps) {
     );
 }
 
-export default Layout;
+export default AdminLayout;

@@ -1,4 +1,4 @@
-import OrderResponse from "../../models/order/OrderResponse";
+import OrderResponse from "../../../models/order/OrderResponse";
 import StatusBadge from "./StatusBadge";
 
 interface OrderTableProps {

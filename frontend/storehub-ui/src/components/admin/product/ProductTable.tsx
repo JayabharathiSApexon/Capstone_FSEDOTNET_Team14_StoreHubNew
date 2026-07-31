@@ -1,5 +1,5 @@
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { ProductResponse } from "../../models/product/ProductResponse";
+import { ProductResponse } from "../../../models/product/ProductResponse";
 
 interface ProductTableProps {
     products: ProductResponse[];
