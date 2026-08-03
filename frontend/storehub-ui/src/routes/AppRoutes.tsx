@@ -12,10 +12,10 @@
 
                 <Routes>
 
-                    {/* <Route
+                    <Route
                         path="/customer"
                         element={<ProductListing />}
-                    /> */}
+                    />
 
                     <Route
                         path="/"

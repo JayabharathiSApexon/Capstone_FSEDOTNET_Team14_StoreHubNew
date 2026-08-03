@@ -44,13 +44,13 @@ function AdminSidebar() {
                 Dashboard
             </NavLink>
 
-            {/* <NavLink
+            <NavLink
                 to="/customer"
                 className={getNavLinkClass}
             >
                 <FaBoxOpen className="me-2" />
                 Customer UI
-            </NavLink> */}
+            </NavLink>
 
             <NavLink
                 to="/admin/products"
