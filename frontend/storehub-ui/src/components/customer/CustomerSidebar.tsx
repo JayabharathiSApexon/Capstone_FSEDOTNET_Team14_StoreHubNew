@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
     FaShoppingBag,
     FaHome,
@@ -9,8 +10,15 @@ import {
     FaUser,
     FaSignOutAlt,
 } from "react-icons/fa";
+import { logout } from "../../services/authService";
 
 function CustomerSidebar() {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
 
     const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
         `nav-link d-flex align-items-center mb-2 px-3 py-2 rounded ${isActive
@@ -86,13 +94,14 @@ function CustomerSidebar() {
 
             <div className="mt-auto">
 
-                <NavLink
-                    to="/logout"
-                    className={getNavLinkClass}
+                <button
+                    type="button"
+                    className="nav-link d-flex align-items-center mb-2 px-3 py-2 rounded text-white bg-transparent border-0 w-100"
+                    onClick={handleLogout}
                 >
                     <FaSignOutAlt className="me-2" />
                     Logout
-                </NavLink>
+                </button>
 
             </div>
 

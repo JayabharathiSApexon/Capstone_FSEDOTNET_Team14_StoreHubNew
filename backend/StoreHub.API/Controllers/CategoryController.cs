@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoreHub.Application.Interfaces.Services;
 using StoreHub.Application.Models.Category;
@@ -18,6 +19,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
@@ -25,6 +27,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpGet("{categoryId:guid}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCategoryById(Guid categoryId)
         {
             var category = await _categoryService.GetCategoryByIdAsync(categoryId);
@@ -38,6 +41,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCategory(CategoryRequestModel request)
         {
             var category = await _categoryService.CreateCategoryAsync(request);
@@ -49,6 +53,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory(CategoryRequestModel request)
         {
             var category = await _categoryService.UpdateCategoryAsync(request);
@@ -57,6 +62,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpDelete("{categoryId:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory(Guid categoryId)
         {
             var category = await _categoryService.DeleteCategoryAsync(categoryId);

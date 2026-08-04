@@ -4,6 +4,8 @@ import {
     FaUserCircle,
     FaSearch
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { getCurrentUser, logout } from "../../services/authService";
 
 interface CustomerHeaderProps {
     searchTerm: string;
@@ -14,6 +16,13 @@ function CustomerHeader({
     searchTerm,
     onSearchChange
 }: CustomerHeaderProps) {
+    const navigate = useNavigate();
+    const currentUser = getCurrentUser();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
 
     return (
         <nav className="navbar navbar-light bg-white border-bottom px-4 py-3">
@@ -54,7 +63,15 @@ function CustomerHeader({
                     <FaBell size={20} className="me-4" />
                     <FaUserCircle size={24} className="me-2" />
 
-                    <span>Guest</span>
+                    <span className="me-3">{currentUser?.fullName ?? "Guest"}</span>
+
+                    <button
+                        type="button"
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={handleLogout}
+                    >
+                        Logout
+                    </button>
 
                 </div>
 

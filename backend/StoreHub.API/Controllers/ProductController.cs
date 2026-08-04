@@ -4,6 +4,7 @@ using AutoMapper;
 using StoreHub.Application.Models.Product;
 using StoreHub.API.Models.Product;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 using System.IO;
 
 namespace StoreHub.API.Controllers
@@ -24,12 +25,14 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllProducts()
         {
             return Ok(await _productService.GetAllProductsAsync());
         }
 
         [HttpGet("{productId:guid}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProductById(Guid productId)
         {
             var product = await _productService.GetProductByIdAsync(productId);
@@ -41,6 +44,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest request)
         {
             var uploadsFolder = Path.Combine(
@@ -86,6 +90,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpPut("{productId:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(Guid productId, [FromForm] UpdateProductRequest request)
         {
             if (productId != request.Id)
@@ -152,6 +157,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpDelete("{productId:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(Guid productId)
         {
             var product = await _productService.DeleteProductAsync(productId);
