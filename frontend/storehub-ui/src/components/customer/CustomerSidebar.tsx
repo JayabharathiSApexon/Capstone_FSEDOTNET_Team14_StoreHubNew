@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
     FaShoppingBag,
     FaHome,
-    FaBoxOpen,
     FaTags,
     FaShoppingCart,
     FaHeart,
@@ -50,14 +49,6 @@ function CustomerSidebar() {
             >
                 <FaHome className="me-2" />
                 Home
-            </NavLink>
-
-            <NavLink
-                to="/products"
-                className={getNavLinkClass}
-            >
-                <FaBoxOpen className="me-2" />
-                Products
             </NavLink>
 
             <NavLink
