@@ -41,6 +41,9 @@ namespace StoreHub.Application.Services
 
         public async Task<ProductResponseModel> CreateProductAsync(ProductRequestModel request)
         {
+            request.Description ??= string.Empty;
+            request.Brand ??= string.Empty;
+
             var product = _mapper.Map<Product>(request);
 
             product.Id = Guid.NewGuid();
@@ -74,8 +77,8 @@ namespace StoreHub.Application.Services
 
             product.Name = request.Name;
             product.CategoryId = request.CategoryId;
-            product.Description = request.Description;
-            product.Brand = request.Brand;
+            product.Description = request.Description ?? string.Empty;
+            product.Brand = request.Brand ?? string.Empty;
             product.Price = request.Price;
             product.StockQuantity = request.StockQuantity;
             product.IsFeatured = request.IsFeatured;

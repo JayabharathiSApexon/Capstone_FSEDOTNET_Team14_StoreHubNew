@@ -45,14 +45,6 @@ function AdminSidebar() {
             </NavLink>
 
             <NavLink
-                to="/customer"
-                className={getNavLinkClass}
-            >
-                <FaBoxOpen className="me-2" />
-                Customer UI
-            </NavLink>
-
-            <NavLink
                 to="/admin/products"
                 className={getNavLinkClass}
             >
