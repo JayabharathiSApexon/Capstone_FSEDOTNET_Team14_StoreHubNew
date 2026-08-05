@@ -24,6 +24,7 @@ namespace StoreHub.Infrastructure.Repositories
                     .ThenInclude(oi => oi.Product)
                     .ThenInclude(p => p.ProductImages)
                 .Include(o => o.TrackingHistory)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
