@@ -14,9 +14,7 @@ namespace StoreHub.Application.Services
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
 
-        public ProductService(
-            IProductRepository productRepository,
-            IMapper mapper)
+        public ProductService(IProductRepository productRepository, IMapper mapper)
         {
             _productRepository = productRepository;
             _mapper = mapper;
@@ -34,7 +32,9 @@ namespace StoreHub.Application.Services
             var product = await _productRepository.GetProductByIdAsync(productId);
 
             if (product == null)
+            {
                 return null;
+            }
 
             return _mapper.Map<ProductResponseModel>(product);
         }
@@ -42,7 +42,6 @@ namespace StoreHub.Application.Services
         public async Task<ProductResponseModel> CreateProductAsync(ProductRequestModel request)
         {
             request.Description ??= string.Empty;
-            request.Brand ??= string.Empty;
 
             var product = _mapper.Map<Product>(request);
 
@@ -73,7 +72,9 @@ namespace StoreHub.Application.Services
             var product = await _productRepository.GetProductByIdAsync(request.Id);
 
             if (product == null)
+            {
                 throw new Exception("Product not found.");
+            }
 
             product.Name = request.Name;
             product.CategoryId = request.CategoryId;
@@ -110,12 +111,15 @@ namespace StoreHub.Application.Services
 
             return _mapper.Map<ProductResponseModel>(updatedProduct);
         }
+
         public async Task<ProductResponseModel> DeleteProductAsync(Guid productId)
         {
             var product = await _productRepository.GetProductByIdAsync(productId);
 
             if (product == null)
+            {
                 throw new Exception("Product not found.");
+            }
 
             var deletedProduct = await _productRepository.DeleteProductAsync(product);
 

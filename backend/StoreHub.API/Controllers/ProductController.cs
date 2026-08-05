@@ -5,6 +5,7 @@ using StoreHub.Application.Models.Product;
 using StoreHub.API.Models.Product;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using StoreHub.API.Common.Services;
 
 namespace StoreHub.API.Controllers
 {
@@ -13,150 +14,128 @@ namespace StoreHub.API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-        private readonly IWebHostEnvironment _environment;
         private readonly IMapper _mapper;
+        private readonly IImageStorageService _imageStorageService;
 
-        public ProductController(IProductService productService, IMapper mapper, IWebHostEnvironment environment)
+        public ProductController(IProductService productService, IMapper mapper, IImageStorageService imageStorageService)
         {
             _productService = productService;
             _mapper = mapper;
-            _environment = environment;
+            _imageStorageService = imageStorageService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
-            return Ok(await _productService.GetAllProductsAsync());
+            try
+            {
+                var products = await _productService.GetAllProductsAsync();
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet("{productId:guid}")]
         public async Task<IActionResult> GetProductById(Guid productId)
         {
-            var product = await _productService.GetProductByIdAsync(productId);
+            try
+            {
+                var product = await _productService.GetProductByIdAsync(productId);
 
-            if (product == null)
-                return NotFound();
+                if (product == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(product);
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest request)
         {
-            var uploadsFolder = Path.Combine(
-                            _environment.WebRootPath,
-                            "uploads",
-                            "products");
-
-            if (!Directory.Exists(uploadsFolder))
+            try
             {
-                Directory.CreateDirectory(uploadsFolder);
+                var productRequest = _mapper.Map<ProductRequestModel>(request);
+
+                productRequest.Images = await _imageStorageService.SaveImagesAsync(request.Images);
+
+                var product = await _productService.CreateProductAsync(productRequest);
+
+                return CreatedAtAction(nameof(GetProductById), new { productId = product.Id }, product);
             }
-
-            var productRequest = _mapper.Map<ProductRequestModel>(request);
-
-            productRequest.Images = new List<ProductImageRequestModel>();
-
-            int displayOrder = 1;
-
-            foreach (var image in request.Images)
+            catch (Exception ex)
             {
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
-
-                var filePath = Path.Combine(uploadsFolder, fileName);
-
-                using var stream = new FileStream(filePath, FileMode.Create);
-
-                await image.CopyToAsync(stream);
-
-                productRequest.Images.Add(new ProductImageRequestModel
-                {
-                    ImageUrl = $"/uploads/products/{fileName}",
-                    IsPrimary = displayOrder == 1,
-                    DisplayOrder = displayOrder++
-                });
+                return BadRequest(ex.Message);
             }
-
-            var product = await _productService.CreateProductAsync(productRequest);
-
-            return CreatedAtAction(
-                nameof(GetProductById),
-                new { productId = product.Id },
-                product);
         }
 
         [HttpPut("{productId:guid}")]
         public async Task<IActionResult> UpdateProduct(Guid productId, [FromForm] UpdateProductRequest request)
         {
-            if (productId != request.Id)
+            try
             {
-                return BadRequest("Product ID mismatch.");
-            }
-
-            var productRequest = _mapper.Map<ProductRequestModel>(request);
-
-            var existingProduct = await _productService.GetProductByIdAsync(request.Id);
-
-            if (existingProduct == null)
-            {
-                return NotFound();
-            }
-
-            productRequest.Images = new List<ProductImageRequestModel>();
-
-            // Save uploaded images
-            if (request.Images != null && request.Images.Any())
-            {
-                foreach (var image in existingProduct.Images)
+                if (productId != request.Id)
                 {
-                    var filePath = Path.Combine(
-                        _environment.WebRootPath,
-                        image.ImageUrl.TrimStart('/')
-                            .Replace('/', Path.DirectorySeparatorChar));
-
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
+                    return BadRequest("Product ID mismatch.");
                 }
 
-                var uploadPath = Path.Combine(
-                    _environment.WebRootPath,
-                    "uploads",
-                    "products");
+                var existingProduct = await _productService.GetProductByIdAsync(request.Id);
 
-                Directory.CreateDirectory(uploadPath);
-
-                int displayOrder = 1;
-
-                foreach (var image in request.Images)
+                if (existingProduct == null)
                 {
-                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(image.FileName)}";
-                    var filePath = Path.Combine(uploadPath, fileName);
-
-                    using var stream = new FileStream(filePath, FileMode.Create);
-                    await image.CopyToAsync(stream);
-
-                    productRequest.Images.Add(new ProductImageRequestModel
-                    {
-                        ImageUrl = $"/uploads/products/{fileName}",
-                        IsPrimary = displayOrder == 1,
-                        DisplayOrder = displayOrder++
-                    });
+                    return NotFound();
                 }
+
+                var productRequest = _mapper.Map<ProductRequestModel>(request);
+
+                if (request.Images != null && request.Images.Any())
+                {
+                    await _imageStorageService.DeleteImagesAsync(existingProduct.Images);
+
+                    productRequest.Images = await _imageStorageService.SaveImagesAsync(request.Images);
+                }
+
+                var product = await _productService.UpdateProductAsync(productRequest);
+
+                return Ok(product);
             }
-
-            var product = await _productService.UpdateProductAsync(productRequest);
-
-            return Ok(product);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{productId:guid}")]
         public async Task<IActionResult> DeleteProduct(Guid productId)
         {
-            var product = await _productService.DeleteProductAsync(productId);
+            try
+            {
+                var existingProduct = await _productService.GetProductByIdAsync(productId);
 
-            return Ok(product);
+                if (existingProduct == null)
+                {
+                    return NotFound();
+                }
+
+                await _imageStorageService.DeleteImagesAsync(existingProduct.Images);
+
+                var product = await _productService.DeleteProductAsync(productId);
+
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

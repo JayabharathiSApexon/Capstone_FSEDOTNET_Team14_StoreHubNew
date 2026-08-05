@@ -4,6 +4,7 @@ using StoreHub.Application.Interfaces.Services;
 using StoreHub.Application.Services;
 using StoreHub.Infrastructure.Repositories;
 using StoreHub.Application.Mappings;
+using StoreHub.API.Common.Services;
 public static class ServiceCollectionExtensions
 {
      public static IServiceCollection AddApplicationServices(this IServiceCollection services)
@@ -13,6 +14,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProductRepository, ProductRepository>();
 
         // Services
+        services.AddScoped<IImageStorageService, ImageStorageService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IProductService, ProductService>();
 
