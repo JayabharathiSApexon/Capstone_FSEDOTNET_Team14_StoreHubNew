@@ -28,6 +28,8 @@ namespace StoreHub.Infrastructure.Data
 
         public DbSet<Wishlist> Wishlists => Set<Wishlist>();
 
+        public DbSet<OrderTrackingHistory> OrderTrackingHistory => Set<OrderTrackingHistory>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -36,6 +38,12 @@ namespace StoreHub.Infrastructure.Data
                 .HasMany(p => p.ProductImages)
                 .WithOne(pi => pi.Product)
                 .HasForeignKey(pi => pi.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.TrackingHistory)
+                .WithOne(ot => ot.Order)
+                .HasForeignKey(ot => ot.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
