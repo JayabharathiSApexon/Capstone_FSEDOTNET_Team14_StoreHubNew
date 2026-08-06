@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using StoreHub.Application.Exceptions;
 using StoreHub.Application.Interfaces.Repositories;
 using StoreHub.Application.Interfaces.Services;
 using StoreHub.Application.Models.Product;
@@ -11,38 +12,39 @@ namespace StoreHub.Application.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IProductRepository _productRepository;
+        private readonly IProductQueryRepository _productQueryRepository;
+        private readonly IProductCommandRepository _productCommandRepository;
         private readonly IMapper _mapper;
 
-        public ProductService(IProductRepository productRepository, IMapper mapper)
+        public ProductService(
+            IProductQueryRepository productQueryRepository,
+            IProductCommandRepository productCommandRepository,
+            IMapper mapper)
         {
-            _productRepository = productRepository;
+            _productQueryRepository = productQueryRepository;
+            _productCommandRepository = productCommandRepository;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<ProductResponseModel>> GetAllProductsAsync()
         {
-            var products = await _productRepository.GetAllProductsAsync();
+            var products = await _productQueryRepository.GetAllProductsAsync();
 
             return _mapper.Map<IEnumerable<ProductResponseModel>>(products);
         }
 
         public async Task<ProductResponseModel?> GetProductByIdAsync(Guid productId)
         {
-            var product = await _productRepository.GetProductByIdAsync(productId);
+            var product = await _productQueryRepository.GetProductByIdAsync(productId);
 
             if (product == null)
-            {
                 return null;
-            }
 
             return _mapper.Map<ProductResponseModel>(product);
         }
 
         public async Task<ProductResponseModel> CreateProductAsync(ProductRequestModel request)
         {
-            request.Description ??= string.Empty;
-
             var product = _mapper.Map<Product>(request);
 
             product.Id = Guid.NewGuid();
@@ -62,24 +64,22 @@ namespace StoreHub.Application.Services
                 });
             }
 
-            var createdProduct = await _productRepository.CreateProductAsync(product);
+            var createdProduct = await _productCommandRepository.CreateProductAsync(product);
 
             return _mapper.Map<ProductResponseModel>(createdProduct);
         }
 
         public async Task<ProductResponseModel> UpdateProductAsync(ProductRequestModel request)
         {
-            var product = await _productRepository.GetProductByIdAsync(request.Id);
+            var product = await _productQueryRepository.GetProductByIdAsync(request.Id);
 
             if (product == null)
-            {
-                throw new Exception("Product not found.");
-            }
+                throw new NotFoundException("Product not found.");
 
             product.Name = request.Name;
             product.CategoryId = request.CategoryId;
-            product.Description = request.Description ?? string.Empty;
-            product.Brand = request.Brand ?? string.Empty;
+            product.Description = request.Description;
+            product.Brand = request.Brand;
             product.Price = request.Price;
             product.StockQuantity = request.StockQuantity;
             product.IsFeatured = request.IsFeatured;
@@ -104,24 +104,21 @@ namespace StoreHub.Application.Services
                     })
                     .ToList();
 
-                await _productRepository.ReplaceProductImagesAsync(product.Id, productImages);
+                await _productCommandRepository.ReplaceProductImagesAsync(product.Id, productImages);
             }
 
-            var updatedProduct = await _productRepository.UpdateProductAsync(product);
+            var updatedProduct = await _productCommandRepository.UpdateProductAsync(product);
 
             return _mapper.Map<ProductResponseModel>(updatedProduct);
         }
-
         public async Task<ProductResponseModel> DeleteProductAsync(Guid productId)
         {
-            var product = await _productRepository.GetProductByIdAsync(productId);
+            var product = await _productQueryRepository.GetProductByIdAsync(productId);
 
             if (product == null)
-            {
-                throw new Exception("Product not found.");
-            }
+                throw new NotFoundException("Product not found.");
 
-            var deletedProduct = await _productRepository.DeleteProductAsync(product);
+            var deletedProduct = await _productCommandRepository.DeleteProductAsync(product);
 
             return _mapper.Map<ProductResponseModel>(deletedProduct);
         }

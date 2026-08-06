@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using StoreHub.API.Models.User;
-using StoreHub.Infrastructure.Data;
+using StoreHub.API.Services.Interfaces;
 
 namespace StoreHub.API.Controllers
 {
@@ -11,29 +9,17 @@ namespace StoreHub.API.Controllers
     [Authorize(Roles = "Admin")]
     public class UsersController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IUserQueryService _userQueryService;
 
-        public UsersController(AppDbContext context)
+        public UsersController(IUserQueryService userQueryService)
         {
-            _context = context;
+            _userQueryService = userQueryService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _context.Users
-                .OrderByDescending(user => user.CreatedDate)
-                .Select(user => new UserListItemResponse
-                {
-                    Id = user.Id.ToString(),
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    IsAdmin = user.IsAdmin,
-                    Role = user.IsAdmin ? "Admin" : "Guest/User",
-                    IsActive = user.IsActive,
-                    CreatedDate = user.CreatedDate
-                })
-                .ToListAsync();
+            var users = await _userQueryService.GetAllUsersAsync();
 
             return Ok(users);
         }

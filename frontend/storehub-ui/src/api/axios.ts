@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getAuthToken } from "../services/auth/authStorage";
 
 console.log("API URL:", import.meta.env.VITE_API_URL);
 
@@ -10,7 +11,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(config => {
-    const token = localStorage.getItem("storehub_auth_token");
+    const token = getAuthToken();
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;

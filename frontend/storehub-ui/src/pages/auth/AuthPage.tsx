@@ -1,7 +1,13 @@
 import { FormEvent, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IoBagHandle } from "react-icons/io5";
-import { forgotPassword, login, register } from "../../services/authService";
+import {
+    forgotPassword,
+    login,
+    register,
+    saveSessionLoginPreference
+} from "../../services/authService";
+import { getApiErrorMessage } from "../../utils/apiError";
 import "./AuthPage.css";
 
 type AuthMode = "login" | "register" | "forgot-password";
@@ -72,8 +78,7 @@ function AuthPage({ mode }: AuthPageProps) {
                 }, 1200);
             }
             catch (requestError: any) {
-                const apiMessage = requestError?.response?.data?.message;
-                setError(apiMessage ?? "Unable to reset password.");
+                setError(getApiErrorMessage(requestError, "Unable to reset password."));
             }
             finally {
                 setIsSubmitting(false);
@@ -107,14 +112,13 @@ function AuthPage({ mode }: AuthPageProps) {
                 });
 
             if (!rememberMe && isLogin) {
-                sessionStorage.setItem("storehub_session_login", "true");
+                saveSessionLoginPreference();
             }
 
             navigate(authResponse.isAdmin ? "/admin/products" : "/customer");
         }
         catch (requestError: any) {
-            const apiMessage = requestError?.response?.data?.message;
-            setError(apiMessage ?? "Authentication failed. Please try again.");
+            setError(getApiErrorMessage(requestError, "Authentication failed. Please try again."));
         }
         finally {
             setIsSubmitting(false);
