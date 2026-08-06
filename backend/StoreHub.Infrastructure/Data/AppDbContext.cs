@@ -34,7 +34,6 @@ namespace StoreHub.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Fix decimal precision warnings
             modelBuilder.Entity<Order>()
                 .Property(o => o.TotalAmount)
                 .HasPrecision(18, 2);

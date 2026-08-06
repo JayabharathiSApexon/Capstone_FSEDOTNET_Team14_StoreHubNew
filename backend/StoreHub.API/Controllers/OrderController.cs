@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoreHub.Application.Interfaces.Services;
+using System.Security.Claims;
 
 namespace StoreHub.API.Controllers
 {
@@ -38,6 +39,21 @@ namespace StoreHub.API.Controllers
             }
 
             return Ok(result);
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetMyOrdersFromClaims()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { Message = "User id claim not found or invalid." });
+            }
+
+            var orders = await _orderService.GetOrdersByUserIdAsync(userId);
+            return Ok(orders);
         }
     }
 }

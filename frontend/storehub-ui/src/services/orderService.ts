@@ -1,5 +1,8 @@
 import OrderResponse from "../models/order/OrderResponse";
 import OrderUpdateRequest from "../models/order/OrderUpdateRequest";
+import api from "../api/axios";
+import { getCurrentUser } from "./authService";
+import MyOrderResponse from "../models/order/MyOrderResponse";
 
 const mockOrders: OrderResponse[] = [
     {
@@ -41,6 +44,30 @@ const mockOrders: OrderResponse[] = [
 
 export const getOrders = async (): Promise<OrderResponse[]> => {
     return Promise.resolve(mockOrders);
+};
+
+export const getOrdersByUser = async (userId: string): Promise<MyOrderResponse[]> => {
+    try {
+        console.debug(`Fetching orders for user ${userId} -> ${api.defaults.baseURL}/Order/user/${userId}`);
+        const response = await api.get<MyOrderResponse[]>(`/Order/user/${userId}`);
+        return response.data;
+    }
+    catch (err) {
+        console.error("getOrdersByUser failed:", err);
+        throw err;
+    }
+};
+
+export const getMyOrders = async (): Promise<MyOrderResponse[]> => {
+    // Use the authenticated "me" endpoint which reads user id from JWT claims
+    try {
+        const response = await api.get<MyOrderResponse[]>('/Order/me');
+        return response.data;
+    }
+    catch (err) {
+        console.error('getMyOrders (me) failed:', err);
+        throw err;
+    }
 };
 
 export const updateOrderStatus = async (

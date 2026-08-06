@@ -4,6 +4,7 @@
     import OrderManagement from "../pages/admin/order/OrderManagement";
     import UserManagement from "../pages/admin/user/UserManagement";
     import ProductListing from "../pages/customer/ProductListing";
+    import MyOrders from "../pages/customer/MyOrders";
     import AuthPage from "../pages/auth/AuthPage";
     import { getCurrentUser, isAuthenticated } from "../services/authService";
 
@@ -37,6 +38,11 @@
                     <Route
                         path="/customer"
                         element={authenticated ? <ProductListing /> : <Navigate to="/login" />}
+                    />
+
+                    <Route
+                        path="/my-orders"
+                        element={authenticated ? <MyOrders /> : <Navigate to="/login" />}
                     />
 
                     <Route
