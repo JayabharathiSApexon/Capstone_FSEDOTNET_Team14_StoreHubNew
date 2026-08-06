@@ -83,3 +83,14 @@ export const updateOrderStatus = async (
 
     return Promise.resolve(false);
 };
+
+export const getOrderTracking = async (orderId: string) => {
+    try {
+        const response = await api.get<any>(`/Order/${orderId}/tracking`);
+        return response.data;
+    }
+    catch (err) {
+        console.error('getOrderTracking failed:', err);
+        throw err;
+    }
+};
