@@ -6,8 +6,6 @@ import {
     FaShoppingCart,
     FaWarehouse,
     FaUsers,
-    FaChartBar,
-    FaCog,
     FaSignOutAlt,
 } from "react-icons/fa";
 
@@ -74,22 +72,6 @@ function AdminSidebar() {
             >
                 <FaUsers className="me-2" />
                 Users
-            </NavLink>
-
-            <NavLink
-                to="/admin/reports"
-                className={getNavLinkClass}
-            >
-                <FaChartBar className="me-2" />
-                Reports
-            </NavLink>
-
-            <NavLink
-                to="/admin/settings"
-                className={getNavLinkClass}
-            >
-                <FaCog className="me-2" />
-                Settings
             </NavLink>
 
             <div className="mt-auto">

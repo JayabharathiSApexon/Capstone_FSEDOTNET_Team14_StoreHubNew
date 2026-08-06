@@ -3,9 +3,13 @@ import { ProductResponse } from "../../../models/product/ProductResponse";
 
 interface ProductCardProps {
     product: ProductResponse;
+    onAddToCart: (product: ProductResponse) => void;
 }
 
-function ProductCard({ product }: ProductCardProps) {
+function ProductCard({
+    product,
+    onAddToCart
+}: ProductCardProps) {
 
     const primaryImage =
         product.images.find(image => image.isPrimary) ??
@@ -79,6 +83,7 @@ function ProductCard({ product }: ProductCardProps) {
                     variant="primary"
                     size="sm"
                     className="mt-auto w-100"
+                    onClick={() => onAddToCart(product)}
                 >
                     Add To Cart
                 </Button>

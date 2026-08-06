@@ -4,37 +4,56 @@ import CustomerSidebar from "./CustomerSidebar";
 
 interface CustomerLayoutProps {
     children: (searchTerm: string) => ReactNode;
+    showHeader?: boolean;
 }
 
-function CustomerLayout({ children }: CustomerLayoutProps) {
+function CustomerLayout({
+    children,
+    showHeader = true
+}: CustomerLayoutProps) {
 
     const [searchTerm, setSearchTerm] = useState("");
 
     return (
-        <div className="d-flex">
+
+        <div>
 
             <CustomerSidebar />
 
+            {
+
+                showHeader && (
+
+                    <CustomerHeader
+                        searchTerm={searchTerm}
+                        onSearchChange={setSearchTerm}
+                    />
+
+                )
+
+            }
+
             <div
-                className="flex-grow-1"
                 style={{
+                    marginLeft: "240px",
+                    marginTop: showHeader ? "72px" : "0px",
                     backgroundColor: "#f4f6fb",
                     minHeight: "100vh"
                 }}
             >
-                <CustomerHeader
-                    searchTerm={searchTerm}
-                    onSearchChange={setSearchTerm}
-                />
 
                 <main className="p-4">
+
                     {children(searchTerm)}
+
                 </main>
 
             </div>
 
         </div>
+
     );
+
 }
 
 export default CustomerLayout;

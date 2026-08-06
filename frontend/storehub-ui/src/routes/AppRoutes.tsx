@@ -1,48 +1,99 @@
-    import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-    import ProductList from "../pages/admin/product/ProductList";
-    import InventoryList from "../pages/admin/Inventory/InventoryList";
-    import OrderManagement from "../pages/admin/order/OrderManagement";
-    import ProductListing from "../pages/customer/ProductListing";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import ProductList from "../pages/admin/product/ProductList";
+import InventoryList from "../pages/admin/Inventory/InventoryList";
+import OrderManagement from "../pages/admin/order/OrderManagement";
+import UserManagement from "../pages/admin/user/UserManagement";
+import ProductListing from "../pages/customer/ProductListing";
+import AuthPage from "../pages/auth/AuthPage";
+import ShoppingCart from "../pages/customer/ShoppingCart";
+import { getCurrentUser, isAuthenticated } from "../services/authService";
 
-    function AppRoutes() {
+function AppRoutesContent() {
+    const location = useLocation();
 
-        return (
+    const authenticated = isAuthenticated();
+    const currentUser = getCurrentUser();
+    const isAdmin = currentUser?.isAdmin ?? false;
+    const defaultRoute = isAdmin ? "/admin/products" : "/customer";
 
-            <BrowserRouter>
+    return (
 
-                <Routes>
+        <Routes key={location.pathname}>
 
-                    <Route
-                        path="/customer"
-                        element={<ProductListing />}
-                    />
+            <Route
+                path="/login"
+                element={authenticated ? <Navigate to={defaultRoute} /> : <AuthPage mode="login" />}
+            />
 
-                    <Route
-                        path="/"
-                        element={<Navigate to="/admin/products" />}
-                    />
+            <Route
+                path="/register"
+                element={authenticated ? <Navigate to={defaultRoute} /> : <AuthPage mode="register" />}
+            />
 
-                    <Route
-                        path="/admin/products"
-                        element={<ProductList />}
-                    />
+            <Route
+                path="/forgot-password"
+                element={authenticated ? <Navigate to={defaultRoute} /> : <AuthPage mode="forgot-password" />}
+            />
 
-                    <Route
-                        path="/admin/inventory"
-                        element={<InventoryList />}
-                    />
+            <Route
+                path="/customer"
+                element={authenticated ? <ProductListing /> : <Navigate to="/login" />}
+            />
 
-                    <Route
-                        path="/admin/orders"
-                        element={<OrderManagement />}
-                    />
+            <Route
+                path="/shopping-cart"
+                element={
+                    authenticated
+                        ? <ShoppingCart />
+                        : <Navigate to="/login" />
+                }
+            />
 
-                </Routes>
+            <Route
+                path="/"
+                element={<Navigate to={authenticated ? defaultRoute : "/login"} />}
+            />
 
-            </BrowserRouter>
+            <Route
+                path="/admin/products"
+                element={authenticated
+                    ? (isAdmin ? <ProductList /> : <Navigate to="/customer" />)
+                    : <Navigate to="/login" />}
+            />
 
-        );
+            <Route
+                path="/admin/inventory"
+                element={authenticated
+                    ? (isAdmin ? <InventoryList /> : <Navigate to="/customer" />)
+                    : <Navigate to="/login" />}
+            />
 
-    }
+            <Route
+                path="/admin/orders"
+                element={authenticated
+                    ? (isAdmin ? <OrderManagement /> : <Navigate to="/customer" />)
+                    : <Navigate to="/login" />}
+            />
 
-    export default AppRoutes;
+            <Route
+                path="/admin/users"
+                element={authenticated
+                    ? (isAdmin ? <UserManagement /> : <Navigate to="/customer" />)
+                    : <Navigate to="/login" />}
+            />
+
+        </Routes>
+
+    );
+
+}
+
+function AppRoutes() {
+    return (
+        <BrowserRouter>
+            <AppRoutesContent />
+        </BrowserRouter>
+    );
+}
+
+export default AppRoutes;

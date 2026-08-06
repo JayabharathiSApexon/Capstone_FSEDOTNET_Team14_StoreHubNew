@@ -1,15 +1,15 @@
-import { NavLink } from "react-router-dom";
-import {
-    FaShoppingBag,
-    FaHome,
-    FaTags,
-    FaShoppingCart,
-    FaHeart,
-    FaUser,
-    FaSignOutAlt,
-} from "react-icons/fa";
+import { NavLink, useNavigate } from "react-router-dom";
+import { FaShoppingBag, FaHome, FaShoppingCart, FaUser, FaSignOutAlt, } from "react-icons/fa";
+import { logout } from "../../services/authService";
 
 function CustomerSidebar() {
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/login");
+    };
 
     const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
         `nav-link d-flex align-items-center mb-2 px-3 py-2 rounded ${isActive
@@ -18,10 +18,20 @@ function CustomerSidebar() {
         }`;
 
     return (
+
         <div
             className="bg-dark text-white d-flex flex-column p-3"
-            style={{ width: "240px", minHeight: "100vh" }}
+            style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "240px",
+                height: "100vh",
+                overflowY: "auto",
+                zIndex: 1000
+            }}
         >
+
             <div className="d-flex align-items-center justify-content-center mb-4">
 
                 <FaShoppingBag
@@ -36,7 +46,7 @@ function CustomerSidebar() {
             </div>
 
             <NavLink
-                to="/"
+                to="/customer"
                 className={getNavLinkClass}
             >
                 <FaHome className="me-2" />
@@ -44,11 +54,11 @@ function CustomerSidebar() {
             </NavLink>
 
             <NavLink
-                to="/categories"
+                to="/shopping-cart"
                 className={getNavLinkClass}
             >
-                <FaTags className="me-2" />
-                Categories
+                <FaShoppingCart className="me-2" />
+                Shopping Cart
             </NavLink>
 
             <NavLink
@@ -57,14 +67,6 @@ function CustomerSidebar() {
             >
                 <FaShoppingCart className="me-2" />
                 My Orders
-            </NavLink>
-
-            <NavLink
-                to="/wishlist"
-                className={getNavLinkClass}
-            >
-                <FaHeart className="me-2" />
-                Wishlist
             </NavLink>
 
             <NavLink
@@ -77,17 +79,19 @@ function CustomerSidebar() {
 
             <div className="mt-auto">
 
-                <NavLink
-                    to="/logout"
-                    className={getNavLinkClass}
+                <button
+                    type="button"
+                    className="nav-link d-flex align-items-center px-3 py-2 rounded text-white bg-transparent border-0 w-100"
+                    onClick={handleLogout}
                 >
                     <FaSignOutAlt className="me-2" />
                     Logout
-                </NavLink>
+                </button>
 
             </div>
 
         </div>
+
     );
 }
 

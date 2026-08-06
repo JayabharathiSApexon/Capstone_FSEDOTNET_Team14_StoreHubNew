@@ -12,11 +12,13 @@ public static class ServiceCollectionExtensions
         // Repositories
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<ICartRepository, CartRepository>();
 
         // Services
         services.AddScoped<IImageStorageService, ImageStorageService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<ICartService, CartService>();
 
         return services;
     }

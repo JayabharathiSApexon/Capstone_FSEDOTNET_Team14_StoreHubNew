@@ -4,10 +4,16 @@ import { ProductResponse } from "../../../models/product/ProductResponse";
 
 interface ProductGridProps {
     products: ProductResponse[];
+    onAddToCart: (product: ProductResponse) => void;
 }
 
-function ProductGrid({ products }: ProductGridProps) {
+function ProductGrid({
+    products,
+    onAddToCart
+}: ProductGridProps) {
+
     return (
+
         <Row>
 
             {products.map(product => (
@@ -21,12 +27,18 @@ function ProductGrid({ products }: ProductGridProps) {
                     xs={12}
                     className="mb-4"
                 >
-                    <ProductCard product={product} />
+
+                    <ProductCard
+                        product={product}
+                        onAddToCart={onAddToCart}
+                    />
+
                 </Col>
 
             ))}
 
         </Row>
+
     );
 }
 
