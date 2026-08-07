@@ -1,5 +1,8 @@
 import axios from "axios";
-import { getAuthToken } from "../services/auth/authStorage";
+import {
+    clearAuth,
+    getAuthToken
+} from "../services/auth/authStorage";
 
 console.log("API URL:", import.meta.env.VITE_API_URL);
 
@@ -19,5 +22,25 @@ api.interceptors.request.use(config => {
 
     return config;
 });
+
+api.interceptors.response.use(
+    response => response,
+    error => {
+        const statusCode = error?.response?.status;
+        const token = getAuthToken();
+
+        // If the token is stale/invalid, clear local auth state and force a clean login flow.
+        if (statusCode === 401 && token) {
+            clearAuth();
+
+            const currentPath = window.location.pathname;
+            if (currentPath !== "/login") {
+                window.location.href = "/login";
+            }
+        }
+
+        return Promise.reject(error);
+    }
+);
 
 export default api;

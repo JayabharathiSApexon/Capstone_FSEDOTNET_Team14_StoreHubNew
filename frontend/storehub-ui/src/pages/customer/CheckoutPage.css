@@ -1,0 +1,139 @@
+.checkout-page {
+    max-width: 1200px;
+}
+
+.checkout-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.checkout-card {
+    background: #ffffff;
+    border: 1px solid #e7e9f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 10px rgba(18, 38, 63, 0.04);
+}
+
+.checkout-section-title {
+    font-weight: 700;
+    color: #1b2745;
+    margin-bottom: 0.9rem;
+}
+
+.checkout-card .form-control {
+    border-radius: 10px;
+    min-height: 44px;
+    border-color: #dbe0eb;
+}
+
+.checkout-payment-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+}
+
+.checkout-payment-options .form-check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.95rem;
+}
+
+.checkout-order-btn {
+    width: 100%;
+    background: #1d5fe9;
+    border: none;
+    color: #fff;
+    min-height: 46px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.checkout-order-btn:hover {
+    background: #184fc2;
+    color: #fff;
+}
+
+.checkout-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.checkout-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.checkout-item-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkout-item-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #1d5fe9;
+}
+
+.checkout-item-name {
+    font-size: 0.96rem;
+    color: #24314f;
+    font-weight: 600;
+}
+
+.checkout-item-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.checkout-item-qty {
+    color: #68758f;
+    font-size: 0.9rem;
+}
+
+.checkout-item-price {
+    font-weight: 700;
+    color: #1d2640;
+    min-width: 78px;
+    text-align: right;
+}
+
+.checkout-total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+    color: #34415f;
+}
+
+.checkout-grand-total {
+    margin-top: 0.35rem;
+    padding-top: 0.65rem;
+    border-top: 1px dashed #d6dceb;
+    font-size: 1.03rem;
+}
+
+.checkout-grand-total strong {
+    color: #0f1831;
+}
+
+@media (max-width: 991px) {
+    .checkout-page {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .checkout-card {
+        padding: 1rem;
+    }
+}
