@@ -1,9 +1,7 @@
-import {
-    FaShoppingCart,
-    FaBell,
-    FaUserCircle,
-    FaSearch
-} from "react-icons/fa";
+import { FaShoppingCart, FaBell, FaUserCircle, FaSearch } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { getCurrentUser, logout } from "../../services/authService";
+import { useCart } from "../../context/CartContext";
 
 import { useNavigate } from "react-router-dom";
 
