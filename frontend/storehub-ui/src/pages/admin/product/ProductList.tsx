@@ -217,9 +217,9 @@ function ProductList() {
 
                 <div>
 
-                    <h3 className="mb-0">
+                    <h4 className="mb-0">
                         Product Management
-                    </h3>
+                    </h4>
 
                     <small className="text-muted">
                         Manage all products

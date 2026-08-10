@@ -27,7 +27,7 @@ function OrderManagement() {
 
     const [currentPage, setCurrentPage] = useState(1);
 
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     useEffect(() => {
 
@@ -124,17 +124,17 @@ function OrderManagement() {
 
     return (
 
-        <Layout>
+        <Layout showHeader={false}>
 
             <div className="d-flex justify-content-between align-items-center mb-4">
 
                 <div>
 
-                    <h3 className="mb-0">
+                    <h4 className="mb-0">
 
                         Order Management
 
-                    </h3>
+                    </h4>
 
                     <small className="text-muted">
 
