@@ -9,7 +9,7 @@ using StoreHub.Application.Interfaces.Repositories;
 
 namespace StoreHub.Infrastructure.Repositories
 {
-    public class CategoryRepository : ICategoryQueryRepository, ICategoryCommandRepository
+    public class CategoryRepository : ICategoryRepository
     {
         private readonly AppDbContext _context;
 

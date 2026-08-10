@@ -15,10 +15,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICartRepository, CartRepository>();
-        services.AddScoped<ICategoryQueryRepository, CategoryQueryRepository>();
-        services.AddScoped<ICategoryCommandRepository, CategoryCommandRepository>();
-        services.AddScoped<IProductQueryRepository, ProductQueryRepository>();
-        services.AddScoped<IProductCommandRepository, ProductCommandRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
         // Services

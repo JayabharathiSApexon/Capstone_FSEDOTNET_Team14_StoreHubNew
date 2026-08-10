@@ -1,6 +1,7 @@
+import api from "../api/axios";
 import { CategoryResponse } from "../models/category/CategoryResponse";
-import { getCategoriesRequest } from "./category/categoryApiService";
 
 export const getCategories = async (): Promise<CategoryResponse[]> => {
-    return await getCategoriesRequest();
+    const response = await api.get<CategoryResponse[]>("/Category");
+    return response.data;
 };

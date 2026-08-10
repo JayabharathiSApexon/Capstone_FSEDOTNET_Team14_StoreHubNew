@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using StoreHub.Application.Interfaces.Services;
+using AutoMapper;
 using StoreHub.Application.Models.Product;
 using StoreHub.API.Models.Product;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
-using StoreHub.API.Services.Interfaces;
+using System.IO;
+using StoreHub.API.Common.Services;
 
 namespace StoreHub.API.Controllers
 {
@@ -12,92 +15,133 @@ namespace StoreHub.API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-        private readonly IProductImageStorageService _productImageStorageService;
-        private readonly IProductRequestMapper _productRequestMapper;
+        private readonly IMapper _mapper;
+        private readonly IImageStorageService _imageStorageService;
 
-        public ProductController(
-            IProductService productService,
-            IProductRequestMapper productRequestMapper,
-            IProductImageStorageService productImageStorageService)
+        public ProductController(IProductService productService, IMapper mapper, IImageStorageService imageStorageService)
         {
             _productService = productService;
-            _productRequestMapper = productRequestMapper;
-            _productImageStorageService = productImageStorageService;
+            _mapper = mapper;
+            _imageStorageService = imageStorageService;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAllProducts()
         {
-            return Ok(await _productService.GetAllProductsAsync());
+            try
+            {
+                var products = await _productService.GetAllProductsAsync();
+
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet("{productId:guid}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetProductById(Guid productId)
         {
-            var product = await _productService.GetProductByIdAsync(productId);
+            try
+            {
+                var product = await _productService.GetProductByIdAsync(productId);
 
-            if (product == null)
-                return NotFound();
+                if (product == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(product);
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest request)
         {
-            var images = await _productImageStorageService.SaveNewImagesAsync(request.Images);
-            var productRequest = _productRequestMapper.ToCreateModel(request, images);
+            try
+            {
+                var productRequest = _mapper.Map<ProductRequestModel>(request);
 
-            var product = await _productService.CreateProductAsync(productRequest);
+                productRequest.Images = await _imageStorageService.SaveImagesAsync(request.Images);
 
-            return CreatedAtAction(
-                nameof(GetProductById),
-                new { productId = product.Id },
-                product);
+                var product = await _productService.CreateProductAsync(productRequest);
+
+                return CreatedAtAction(nameof(GetProductById), new { productId = product.Id }, product);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{productId:guid}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(Guid productId, [FromForm] UpdateProductRequest request)
         {
-            if (productId != request.Id)
+            try
             {
-                return BadRequest("Product ID mismatch.");
+                if (productId != request.Id)
+                {
+                    return BadRequest("Product ID mismatch.");
+                }
+
+                var existingProduct = await _productService.GetProductByIdAsync(request.Id);
+
+                if (existingProduct == null)
+                {
+                    return NotFound();
+                }
+
+                var productRequest = _mapper.Map<ProductRequestModel>(request);
+
+                if (request.Images != null && request.Images.Any())
+                {
+                    await _imageStorageService.DeleteImagesAsync(existingProduct.Images);
+
+                    productRequest.Images = await _imageStorageService.SaveImagesAsync(request.Images);
+                }
+
+                var product = await _productService.UpdateProductAsync(productRequest);
+
+                return Ok(product);
             }
-
-            var existingProduct = await _productService.GetProductByIdAsync(request.Id);
-
-            if (existingProduct == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return BadRequest(ex.Message);
             }
-
-            var images = new List<ProductImageRequestModel>();
-
-            if (request.Images != null && request.Images.Any())
-            {
-                images = await _productImageStorageService.ReplaceImagesAsync(
-                    existingProduct.Images.Select(image => image.ImageUrl),
-                    request.Images);
-            }
-
-            var productRequest = _productRequestMapper.ToUpdateModel(request, images);
-
-            var product = await _productService.UpdateProductAsync(productRequest);
-
-            return Ok(product);
         }
 
         [HttpDelete("{productId:guid}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(Guid productId)
         {
-            var product = await _productService.DeleteProductAsync(productId);
+            try
+            {
+                var existingProduct = await _productService.GetProductByIdAsync(productId);
 
-            return Ok(product);
+                if (existingProduct == null)
+                {
+                    return NotFound();
+                }
+
+                await _imageStorageService.DeleteImagesAsync(existingProduct.Images);
+
+                var product = await _productService.DeleteProductAsync(productId);
+
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

@@ -1,18 +1,59 @@
+import { useEffect, useState } from "react";
 import Layout from "../../../components/admin/AdminLayout";
 import Pagination from "../../../components/common/Pagination";
 import InventoryTable from "../../../components/admin/inventory/InventoryTable";
-import { useInventoryManagement } from "../../../hooks/admin/useInventoryManagement";
+import { ProductResponse } from "../../../models/product/ProductResponse";
+import { getProducts } from "../../../services/productService";
 
 function InventoryList() {
-    const {
-        inventory,
-        currentInventory,
-        currentPage,
-        itemsPerPage,
-        loading,
-        error,
-        setCurrentPage
-    } = useInventoryManagement();
+
+    const [inventory, setInventory] = useState<ProductResponse[]>([]);
+
+    const [loading, setLoading] = useState(true);
+
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+
+        loadInventory();
+
+    }, []);
+
+    const loadInventory = async () => {
+
+        try {
+
+            const data = await getProducts();
+
+            setInventory(data);
+
+            setCurrentPage(1);
+
+        }
+        catch (error) {
+
+            console.error(error);
+
+        }
+        finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+    const currentInventory =
+        inventory.slice(
+            indexOfFirstItem,
+            indexOfLastItem
+        );
 
     return (
 
@@ -29,7 +70,9 @@ function InventoryList() {
                     </h4>
 
                     <small className="text-muted">
+
                         Monitor product inventory and stock levels
+
                     </small>
 
                 </div>
@@ -44,37 +87,36 @@ function InventoryList() {
 
                         loading
 
-                            ?
+                            ? (
 
-                            <p>Loading...</p>
+                                <p>
 
-                            :
+                                    Loading...
 
-                            error
+                                </p>
 
-                                ?
+                            )
 
-                                <div className="alert alert-danger mb-0">
-                                    {error}
-                                </div>
+                            : (
 
-                                :
+                                <>
 
-                            <>
+                                    <InventoryTable
 
-                                <InventoryTable
-                                    inventory={currentInventory}
-                                />
+                                        inventory={currentInventory}
 
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalItems={inventory.length}
-                                    itemsPerPage={itemsPerPage}
-                                    onPageChange={setCurrentPage}
-                                />
+                                    />
 
-                            </>
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalItems={inventory.length}
+                                        itemsPerPage={itemsPerPage}
+                                        onPageChange={setCurrentPage}
 
+                                    />
+                                </>
+
+                            )
                     }
 
                 </div>
