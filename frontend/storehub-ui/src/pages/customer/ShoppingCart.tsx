@@ -1,23 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import CustomerLayout from "../../components/customer/CustomerLayout";
-
 import CartTable from "../../components/customer/cart/CartTable";
 import CartSummary from "../../components/customer/cart/CartSummary";
-
 import MessageModal from "../../components/common/MessageModal";
 import ConfirmModal from "../../components/common/ConfirmModal";
-
 import { CartResponse } from "../../models/cart/CartResponse";
 import { CartItemResponse } from "../../models/cart/CartItemResponse";
-
 import { useCart } from "../../context/CartContext";
 
 import {
     getCart,
     updateCartItem,
-    removeCartItem
+    removeCartItem,
+    clearCart
 } from "../../services/cartService";
 
 function ShoppingCart() {
@@ -34,6 +30,9 @@ function ShoppingCart() {
         useState<CartItemResponse | null>(null);
 
     const [showDeleteModal, setShowDeleteModal] =
+        useState(false);
+
+    const [showClearCartModal, setShowClearCartModal] =
         useState(false);
 
     const [showMessageModal, setShowMessageModal] =
@@ -174,21 +173,63 @@ function ShoppingCart() {
 
     };
 
+    const handleClearCartClick = () => {
+
+        setShowClearCartModal(true);
+
+    };
+
+    const confirmClearCart = async () => {
+
+        try {
+
+            await clearCart();
+
+            setShowClearCartModal(false);
+
+            await loadCart();
+
+            await refreshHeaderCart();
+
+            setMessageTitle("Success");
+
+            setMessageText(
+                "All items have been removed from your cart."
+            );
+
+            setMessageType("success");
+
+            setShowMessageModal(true);
+
+        }
+        catch {
+
+            setShowClearCartModal(false);
+
+            setMessageTitle("Clear Cart Failed");
+
+            setMessageText(
+                "Unable to clear the cart."
+            );
+
+            setMessageType("danger");
+
+            setShowMessageModal(true);
+
+        }
+
+    };
+
     return (
 
         <CustomerLayout
-            showHeader={false}
+            showHeader={true}
+            isShoppingCart={true}
         >
 
             {() => (
 
                 <div className="container-fluid py-4">
-
-                    <h2 className="fw-bold mb-4">
-
-                        Shopping Cart
-
-                    </h2>
 
                     {
 
@@ -203,6 +244,38 @@ function ShoppingCart() {
                             cart &&
 
                             <>
+
+                                {/* Cart Header */}
+
+                                <div className="d-flex justify-content-between align-items-center mb-3">
+
+                                    <h5 className="fw-bold mb-0">
+
+                                        Your Cart
+
+                                    </h5>
+
+                                    {
+
+                                        cart.items.length > 0 && (
+
+                                            <button
+                                                type="button"
+                                                className="btn btn-outline-danger"
+                                                onClick={handleClearCartClick}
+                                            >
+
+                                                Clear Cart
+
+                                            </button>
+
+                                        )
+
+                                    }
+
+                                </div>
+
+                                {/* Cart Items */}
 
                                 <CartTable
 
@@ -220,9 +293,12 @@ function ShoppingCart() {
 
                                         <div className="row mt-4">
 
+                                            {/* Continue Shopping */}
+
                                             <div className="col-md-6">
 
                                                 <button
+                                                    type="button"
                                                     className="btn btn-outline-secondary"
                                                     onClick={() => navigate("/customer")}
                                                 >
@@ -232,6 +308,8 @@ function ShoppingCart() {
                                                 </button>
 
                                             </div>
+
+                                            {/* Order Summary */}
 
                                             <div className="col-md-6 d-flex justify-content-end">
 
@@ -255,6 +333,8 @@ function ShoppingCart() {
 
                     }
 
+                    {/* Remove Single Product Confirmation */}
+
                     <ConfirmModal
 
                         show={showDeleteModal}
@@ -268,6 +348,24 @@ function ShoppingCart() {
                         onCancel={() => setShowDeleteModal(false)}
 
                     />
+
+                    {/* Clear Entire Cart Confirmation */}
+
+                    <ConfirmModal
+
+                        show={showClearCartModal}
+
+                        title="Clear Cart"
+
+                        message="Are you sure you want to remove all items from your cart?"
+
+                        onConfirm={confirmClearCart}
+
+                        onCancel={() => setShowClearCartModal(false)}
+
+                    />
+
+                    {/* Success / Error Message */}
 
                     <MessageModal
 
