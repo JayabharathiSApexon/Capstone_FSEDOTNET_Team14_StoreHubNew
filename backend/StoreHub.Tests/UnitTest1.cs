@@ -1,12 +1,17 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using StoreHub.Application.Interfaces.Repositories;
 using StoreHub.API.Controllers;
 using StoreHub.API.Models.Auth;
+using StoreHub.API.Services;
+using StoreHub.API.Services.Interfaces;
 using StoreHub.Domain.Entities;
 using StoreHub.Infrastructure.Data;
+using StoreHub.Infrastructure.Repositories;
 
 namespace StoreHub.Tests;
 
@@ -28,8 +33,9 @@ public class AuthControllerTests
 
         var result = await controller.Register(request);
 
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        var response = Assert.IsType<AuthResponse>(okResult.Value);
+        var objectResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status200OK, objectResult.StatusCode);
+        var response = Assert.IsType<AuthResponse>(objectResult.Value);
 
         Assert.False(string.IsNullOrWhiteSpace(response.Token));
         Assert.Equal("customer@storehub.com", response.Email);
@@ -66,7 +72,8 @@ public class AuthControllerTests
             Password = "Password@456"
         });
 
-        Assert.IsType<ConflictObjectResult>(result);
+        var objectResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status409Conflict, objectResult.StatusCode);
     }
 
     [Fact]
@@ -93,7 +100,8 @@ public class AuthControllerTests
             Password = "WrongPassword@123"
         });
 
-        Assert.IsType<UnauthorizedObjectResult>(result);
+        var objectResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status401Unauthorized, objectResult.StatusCode);
     }
 
     [Fact]
@@ -121,8 +129,9 @@ public class AuthControllerTests
             Password = "AdminPassword@123"
         });
 
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        var response = Assert.IsType<AuthResponse>(okResult.Value);
+        var objectResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status200OK, objectResult.StatusCode);
+        var response = Assert.IsType<AuthResponse>(objectResult.Value);
 
         var token = new JwtSecurityTokenHandler().ReadJwtToken(response.Token);
         var roleClaim = token.Claims.FirstOrDefault(claim =>
@@ -161,8 +170,9 @@ public class AuthControllerTests
             Password = plainPassword
         });
 
-        var okResult = Assert.IsType<OkObjectResult>(result);
-        var response = Assert.IsType<AuthResponse>(okResult.Value);
+        var objectResult = Assert.IsType<ObjectResult>(result);
+        Assert.Equal(StatusCodes.Status200OK, objectResult.StatusCode);
+        var response = Assert.IsType<AuthResponse>(objectResult.Value);
 
         Assert.False(string.IsNullOrWhiteSpace(response.Token));
 
@@ -192,6 +202,10 @@ public class AuthControllerTests
             })
             .Build();
 
-        return new AuthController(context, configuration);
+        IPasswordHasher passwordHasher = new BCryptPasswordHasher();
+        IAuthTokenFactory authTokenFactory = new JwtAuthTokenFactory(configuration);
+        IUserRepository userRepository = new UserRepository(context);
+        var authService = new AuthService(userRepository, passwordHasher, authTokenFactory);
+        return new AuthController(authService);
     }
 }

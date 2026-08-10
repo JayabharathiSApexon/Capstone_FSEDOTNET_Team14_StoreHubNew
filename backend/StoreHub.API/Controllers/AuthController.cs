@@ -1,13 +1,7 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using StoreHub.API.Models.Auth;
-using StoreHub.Domain.Entities;
-using StoreHub.Infrastructure.Data;
+using StoreHub.API.Services.Interfaces;
 
 namespace StoreHub.API.Controllers
 {
@@ -16,13 +10,11 @@ namespace StoreHub.API.Controllers
     [AllowAnonymous]
     public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IConfiguration _configuration;
+        private readonly IAuthService _authService;
 
-        public AuthController(AppDbContext context, IConfiguration configuration)
+        public AuthController(IAuthService authService)
         {
-            _context = context;
-            _configuration = configuration;
+            _authService = authService;
         }
 
         [HttpPost("register")]
@@ -33,34 +25,13 @@ namespace StoreHub.API.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-
-            var emailExists = await _context.Users
-                .AnyAsync(user => user.Email.ToLower() == normalizedEmail && user.IsActive);
-
-            if (emailExists)
+            var result = await _authService.RegisterAsync(request);
+            if (!result.Succeeded)
             {
-                return Conflict(new { message = "Email is already registered." });
+                return StatusCode(result.StatusCode, new { message = result.Message });
             }
 
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                FullName = request.FullName.Trim(),
-                Email = normalizedEmail,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                PhoneNumber = request.PhoneNumber?.Trim() ?? string.Empty,
-                IsAdmin = false,
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow
-            };
-
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
-
-            var response = CreateAuthResponse(user);
-
-            return Ok(response);
+            return StatusCode(result.StatusCode, result.Data);
         }
 
         [HttpPost("login")]
@@ -71,47 +42,13 @@ namespace StoreHub.API.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var identifier = request.Email.Trim();
-            var normalizedIdentifier = identifier.ToLowerInvariant();
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(existingUser =>
-                    (existingUser.Email.ToLower() == normalizedIdentifier ||
-                     existingUser.FullName.ToLower() == normalizedIdentifier) &&
-                    existingUser.IsActive);
-
-            if (user == null)
+            var result = await _authService.LoginAsync(request);
+            if (!result.Succeeded)
             {
-                return Unauthorized(new { message = "Invalid email or password." });
+                return StatusCode(result.StatusCode, new { message = result.Message });
             }
 
-            var passwordValid = false;
-
-            try
-            {
-                passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
-            }
-            catch
-            {
-                passwordValid = false;
-            }
-
-            if (!passwordValid && user.PasswordHash == request.Password)
-            {
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-                user.UpdatedDate = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-                passwordValid = true;
-            }
-
-            if (!passwordValid)
-            {
-                return Unauthorized(new { message = "Invalid email or password." });
-            }
-
-            var response = CreateAuthResponse(user);
-
-            return Ok(response);
+            return StatusCode(result.StatusCode, result.Data);
         }
 
         [HttpPost("forgot-password")]
@@ -122,29 +59,13 @@ namespace StoreHub.API.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            if (request.NewPassword != request.ConfirmPassword)
+            var result = await _authService.ForgotPasswordAsync(request);
+            if (!result.Succeeded)
             {
-                return BadRequest(new { message = "Password and confirm password do not match." });
+                return StatusCode(result.StatusCode, new { message = result.Message });
             }
 
-            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(existingUser =>
-                    existingUser.Email.ToLower() == normalizedEmail &&
-                    existingUser.IsActive);
-
-            if (user == null)
-            {
-                return NotFound(new { message = "Account not found." });
-            }
-
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
-            user.UpdatedDate = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Password reset successful. Please login with your new password." });
+            return Ok(new { message = result.Data });
         }
 
         [HttpPost("reset-password")]
@@ -155,77 +76,13 @@ namespace StoreHub.API.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            if (request.NewPassword != request.ConfirmPassword)
+            var result = await _authService.ResetPasswordAsync(request);
+            if (!result.Succeeded)
             {
-                return BadRequest(new { message = "Password and confirm password do not match." });
+                return StatusCode(result.StatusCode, new { message = result.Message });
             }
 
-            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(existingUser =>
-                    existingUser.Email.ToLower() == normalizedEmail &&
-                    existingUser.IsActive);
-
-            if (user == null)
-            {
-                return BadRequest(new { message = "Unable to reset password for this account." });
-            }
-
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
-            user.UpdatedDate = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Password reset successful. Please login with your new password." });
-        }
-
-        private AuthResponse CreateAuthResponse(User user)
-        {
-            var expiryMinutes = _configuration.GetValue<int?>("Jwt:ExpiryMinutes") ?? 60;
-            var expiresAt = DateTime.UtcNow.AddMinutes(expiryMinutes);
-
-            var token = GenerateJwtToken(user, expiresAt);
-
-            return new AuthResponse
-            {
-                Token = token,
-                ExpiresAtUtc = expiresAt,
-                UserId = user.Id.ToString(),
-                FullName = user.FullName,
-                Email = user.Email,
-                IsAdmin = user.IsAdmin
-            };
-        }
-
-        private string GenerateJwtToken(User user, DateTime expiresAt)
-        {
-            var jwtKey = _configuration["Jwt:Key"]
-                ?? throw new InvalidOperationException("JWT key is not configured.");
-
-            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-            var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
-
-            var claims = new List<Claim>
-            {
-                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new(JwtRegisteredClaimNames.Email, user.Email),
-                new(JwtRegisteredClaimNames.UniqueName, user.FullName),
-                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Email, user.Email),
-                new(ClaimTypes.Name, user.FullName),
-                new(ClaimTypes.Role, user.IsAdmin ? "Admin" : "Customer")
-            };
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                notBefore: DateTime.UtcNow,
-                expires: expiresAt,
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return Ok(new { message = result.Data });
         }
     }
 }

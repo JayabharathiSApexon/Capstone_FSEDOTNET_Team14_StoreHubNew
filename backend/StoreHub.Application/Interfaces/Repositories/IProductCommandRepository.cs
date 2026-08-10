@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using StoreHub.Domain.Entities;
 
 namespace StoreHub.Application.Interfaces.Repositories
 {
-    public interface IProductRepository
+    public interface IProductCommandRepository
     {
-        Task<IEnumerable<Product>> GetAllProductsAsync();
-
-        Task<Product?> GetProductByIdAsync(Guid productId);
-
         Task<Product> CreateProductAsync(Product product);
 
         Task<Product> UpdateProductAsync(Product product);
@@ -18,6 +11,5 @@ namespace StoreHub.Application.Interfaces.Repositories
         Task<Product> DeleteProductAsync(Product product);
 
         Task ReplaceProductImagesAsync(Guid productId, List<ProductImage> newImages);
-
     }
 }
