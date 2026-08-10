@@ -3,14 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "../../services/authService";
 import { useCart } from "../../context/CartContext";
 
-import { useNavigate } from "react-router-dom";
-
-import {
-    getCurrentUser,
-    logout
-} from "../../services/authService";
-
-import { useCart } from "../../context/CartContext";
 
 
 interface CustomerHeaderProps {
