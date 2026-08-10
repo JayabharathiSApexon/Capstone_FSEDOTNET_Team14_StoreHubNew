@@ -3,14 +3,34 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "../../services/authService";
 import { useCart } from "../../context/CartContext";
 
+import { useNavigate } from "react-router-dom";
+
+import {
+    getCurrentUser,
+    logout
+} from "../../services/authService";
+
+import { useCart } from "../../context/CartContext";
+
+
 interface CustomerHeaderProps {
+
     searchTerm: string;
+
     onSearchChange: (value: string) => void;
+
+    isShoppingCart?: boolean;
 }
 
+
 function CustomerHeader({
+
     searchTerm,
-    onSearchChange
+
+    onSearchChange,
+
+    isShoppingCart = false
+
 }: CustomerHeaderProps) {
 
     const navigate = useNavigate();
@@ -21,6 +41,7 @@ function CustomerHeader({
         cartCount
     } = useCart();
 
+
     const handleLogout = () => {
 
         logout();
@@ -28,6 +49,7 @@ function CustomerHeader({
         navigate("/login");
 
     };
+
 
     return (
 
@@ -46,92 +68,159 @@ function CustomerHeader({
 
             <div className="d-flex align-items-center w-100">
 
-                <div
-                    className="position-relative"
-                    style={{
-                        maxWidth: "520px",
-                        width: "100%"
-                    }}
-                >
+                {
+                    isShoppingCart ? (
 
-                    <FaSearch
-                        className="position-absolute text-secondary"
-                        style={{
-                            left: "16px",
-                            top: "50%",
-                            transform: "translateY(-50%)"
-                        }}
-                    />
+                        <>
+                            {/* Shopping Cart Page */}
 
-                    <input
-                        type="text"
-                        className="form-control shadow-sm"
-                        placeholder="Search products..."
-                        value={searchTerm}
-                        onChange={(e) =>
-                            onSearchChange(e.target.value)
-                        }
-                        style={{
-                            height: "48px",
-                            borderRadius: "25px",
-                            paddingLeft: "45px"
-                        }}
-                    />
+                            <span className="fw-semibold fs-5">
 
-                </div>
+                                Shopping Cart
 
-                <div className="ms-auto d-flex align-items-center">
+                            </span>
 
-                    <div
-                        className="position-relative me-4"
-                        style={{
-                            cursor: "pointer"
-                        }}
-                        onClick={() =>
-                            navigate("/shopping-cart")
-                        }
-                    >
 
-                        <FaShoppingCart size={22} />
+                            <div
+                                className="ms-auto position-relative"
+                                style={{
+                                    cursor: "pointer"
+                                }}
+                                onClick={() =>
+                                    navigate("/shopping-cart")
+                                }
+                            >
 
-                        {
+                                <FaShoppingCart
+                                    size={24}
+                                />
 
-                            cartCount > 0 && (
+                                {
+                                    cartCount > 0 && (
 
-                                <span
-                                    className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                        <span
+                                            className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                        >
+                                            {cartCount}
+                                        </span>
+
+                                    )
+                                }
+
+                            </div>
+
+                        </>
+
+                    ) : (
+
+                        <>
+                            {/* Normal Customer Pages */}
+
+                            <div
+                                className="position-relative"
+                                style={{
+                                    maxWidth: "520px",
+                                    width: "100%"
+                                }}
+                            >
+
+                                <FaSearch
+                                    className="position-absolute text-secondary"
+                                    style={{
+                                        left: "16px",
+                                        top: "50%",
+                                        transform: "translateY(-50%)"
+                                    }}
+                                />
+
+                                <input
+                                    type="text"
+                                    className="form-control shadow-sm"
+                                    placeholder="Search products..."
+                                    value={searchTerm}
+                                    onChange={(e) =>
+                                        onSearchChange(e.target.value)
+                                    }
+                                    style={{
+                                        height: "48px",
+                                        borderRadius: "25px",
+                                        paddingLeft: "45px"
+                                    }}
+                                />
+
+                            </div>
+
+
+                            <div className="ms-auto d-flex align-items-center">
+
+                                {/* Cart */}
+
+                                <div
+                                    className="position-relative me-4"
+                                    style={{
+                                        cursor: "pointer"
+                                    }}
+                                    onClick={() =>
+                                        navigate("/shopping-cart")
+                                    }
                                 >
-                                    {cartCount}
+
+                                    <FaShoppingCart
+                                        size={22}
+                                    />
+
+                                    {
+                                        cartCount > 0 && (
+
+                                            <span
+                                                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                            >
+                                                {cartCount}
+                                            </span>
+
+                                        )
+                                    }
+
+                                </div>
+
+
+                                {/* Notification */}
+
+                                <FaBell
+                                    size={20}
+                                    className="me-4"
+                                />
+
+
+                                {/* User */}
+
+                                <FaUserCircle
+                                    size={24}
+                                    className="me-2"
+                                />
+
+                                <span className="me-3">
+
+                                    {currentUser?.fullName ?? "Guest"}
+
                                 </span>
 
-                            )
 
-                        }
+                                {/* Logout */}
 
-                    </div>
+                                <button
+                                    className="btn btn-outline-danger btn-sm"
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </button>
 
-                    <FaBell
-                        size={20}
-                        className="me-4"
-                    />
+                            </div>
 
-                    <FaUserCircle
-                        size={24}
-                        className="me-2"
-                    />
+                        </>
 
-                    <span className="me-3">
-                        {currentUser?.fullName ?? "Guest"}
-                    </span>
-
-                    <button
-                        className="btn btn-outline-danger btn-sm"
-                        onClick={handleLogout}
-                    >
-                        Logout
-                    </button>
-
-                </div>
+                    )
+                }
 
             </div>
 
@@ -140,5 +229,6 @@ function CustomerHeader({
     );
 
 }
+
 
 export default CustomerHeader;

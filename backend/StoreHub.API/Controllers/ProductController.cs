@@ -4,6 +4,7 @@ using AutoMapper;
 using StoreHub.Application.Models.Product;
 using StoreHub.API.Models.Product;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 using System.IO;
 using StoreHub.API.Common.Services;
 
@@ -25,6 +26,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllProducts()
         {
             try
@@ -40,6 +42,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpGet("{productId:guid}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProductById(Guid productId)
         {
             try
@@ -60,6 +63,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProduct([FromForm] CreateProductRequest request)
         {
             try
@@ -79,6 +83,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpPut("{productId:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(Guid productId, [FromForm] UpdateProductRequest request)
         {
             try
@@ -115,6 +120,7 @@ namespace StoreHub.API.Controllers
         }
 
         [HttpDelete("{productId:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(Guid productId)
         {
             try
