@@ -1,5 +1,6 @@
 using AutoMapper;
 using StoreHub.Application.Models.Category;
+using StoreHub.Application.Models.Order;
 using StoreHub.Application.Models.Product;
 using StoreHub.Domain.Entities;
 
@@ -26,6 +27,10 @@ namespace StoreHub.Application.Mappings
                             o => o.MapFrom(s => s.Category.Name))
                         .ForMember(d => d.Images,
                             o => o.MapFrom(s => s.ProductImages));
+            #endregion
+
+            #region Order
+            CreateMap<Order, MyOrderResponseModel>();
             #endregion
 
         }

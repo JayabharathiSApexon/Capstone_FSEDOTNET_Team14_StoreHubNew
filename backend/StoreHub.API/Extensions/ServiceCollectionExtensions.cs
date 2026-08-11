@@ -14,6 +14,8 @@ public static class ServiceCollectionExtensions
         // Repositories
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<ITrackingDetails, TrackingDetails>();
         services.AddScoped<ICartRepository, CartRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
@@ -21,6 +23,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IImageStorageService, ImageStorageService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<ITrackingService, TrackingService>();
         services.AddScoped<ICartService, CartService>();
 
         // API services

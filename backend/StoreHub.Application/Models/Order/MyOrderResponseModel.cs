@@ -1,6 +1,8 @@
-namespace StoreHub.Domain.Entities
+using System;
+
+namespace StoreHub.Application.Models.Order
 {
-    public class Order
+    public class MyOrderResponseModel
     {
         public Guid Id { get; set; }
 
@@ -8,7 +10,7 @@ namespace StoreHub.Domain.Entities
 
         public decimal TotalAmount { get; set; }
 
-        public string Status { get; set; } = "Pending";
+        public string Status { get; set; } = string.Empty;
 
         public string ShippingAddress { get; set; } = string.Empty;
 
@@ -23,11 +25,5 @@ namespace StoreHub.Domain.Entities
         public DateTime OrderDate { get; set; }
 
         public DateTime? UpdatedDate { get; set; }
-
-        public User User { get; set; } = null!;
-
-        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-
-        public ICollection<OrderTrackingHistory> TrackingHistory { get; set; } = new List<OrderTrackingHistory>();
     }
 }
