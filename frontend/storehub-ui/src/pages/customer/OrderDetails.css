@@ -17,7 +17,7 @@
     display: flex;
     align-items: flex-start;
     position: relative;
-    margin-bottom: 28px;
+    margin-bottom: 27px;
 }
 
     .timeline-item:last-child {
