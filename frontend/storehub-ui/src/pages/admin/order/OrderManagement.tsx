@@ -1,31 +1,38 @@
 import { useEffect, useMemo, useState } from "react";
+
 import Layout from "../../../components/admin/AdminLayout";
 import Pagination from "../../../components/common/Pagination";
-import OrderResponse from "../../../models/order/OrderResponse";
+
 import OrderTable from "../../../components/admin/order/OrderTable";
 import UpdateStatusModal from "../../../components/admin/order/UpdateStatusModal";
-import { getOrders, updateOrderStatus } from "../../../services/orderService";
+
+import OrderResponse from "../../../models/order/OrderResponse";
+
+import {
+    getOrders,
+    updateOrderStatus
+} from "../../../services/orderService";
 
 function OrderManagement() {
 
     const [orders, setOrders] = useState<OrderResponse[]>([]);
+
     const [loading, setLoading] = useState(true);
 
     const [showModal, setShowModal] = useState(false);
 
-    const [selectedOrder, setSelectedOrder] =
-        useState<OrderResponse | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null);
 
-    const [statusFilter, setStatusFilter] =
-        useState("All");
+    const [statusFilter, setStatusFilter] = useState("All");
 
-    const [currentPage, setCurrentPage] =
-        useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const itemsPerPage = 5;
+    const itemsPerPage = 10;
 
     useEffect(() => {
+
         loadOrders();
+
     }, []);
 
     const loadOrders = async () => {
@@ -35,6 +42,8 @@ function OrderManagement() {
             const data = await getOrders();
 
             setOrders(data);
+
+            setCurrentPage(1);
 
         }
         catch (error) {
@@ -50,7 +59,7 @@ function OrderManagement() {
 
     };
 
-    const handleUpdateStatus = (order: OrderResponse) => {
+    const handleUpdateStatus = ( order: OrderResponse ) => {
 
         setSelectedOrder(order);
 
@@ -58,32 +67,49 @@ function OrderManagement() {
 
     };
 
-    const handleSave = async (status: string) => {
+    const handleSave = async ( status: string ) => {
 
-        if (!selectedOrder)
+        if (!selectedOrder) {
             return;
+        }
 
-        await updateOrderStatus({
+        try {
 
-            orderId: selectedOrder.id,
+            await updateOrderStatus({
 
-            status
+                orderId: selectedOrder.id,
 
-        });
+                status
 
-        setShowModal(false);
+            });
 
-        await loadOrders();
+            setShowModal(false);
+
+            await loadOrders();
+
+        }
+        catch (error) {
+
+            console.error(error);
+
+            setShowModal(false);
+
+        }
 
     };
 
     const filteredOrders = useMemo(() => {
 
-        if (statusFilter === "All")
+        if (statusFilter === "All") {
+
             return orders;
 
+        }
+
         return orders.filter(
-            x => x.status === statusFilter
+
+            order => order.status === statusFilter
+
         );
 
     }, [orders, statusFilter]);
@@ -98,18 +124,22 @@ function OrderManagement() {
 
     return (
 
-        <Layout>
+        <Layout showHeader={false}>
 
             <div className="d-flex justify-content-between align-items-center mb-4">
 
                 <div>
 
-                    <h3 className="mb-0">
+                    <h4 className="mb-0">
+
                         Order Management
-                    </h3>
+
+                    </h4>
 
                     <small className="text-muted">
+
                         Manage customer orders
+
                     </small>
 
                 </div>
@@ -133,27 +163,39 @@ function OrderManagement() {
                     >
 
                         <option value="All">
+
                             All Status
+
                         </option>
 
                         <option value="Pending">
+
                             Pending
+
                         </option>
 
                         <option value="Processing">
+
                             Processing
+
                         </option>
 
                         <option value="Shipped">
+
                             Shipped
+
                         </option>
 
                         <option value="Delivered">
+
                             Delivered
+
                         </option>
 
                         <option value="Cancelled">
+
                             Cancelled
+
                         </option>
 
                     </select>
@@ -167,21 +209,47 @@ function OrderManagement() {
                 <div className="card-body">
 
                     {
-                        loading
-                            ? <p>Loading...</p>
-                            : <>
-                                <OrderTable
-                                    orders={pagedOrders}
-                                    onUpdateStatus={handleUpdateStatus}
-                                />
 
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalItems={filteredOrders.length}
-                                    itemsPerPage={itemsPerPage}
-                                    onPageChange={setCurrentPage}
-                                />
-                            </>
+                        loading
+
+                            ? (
+
+                                <p>
+
+                                    Loading...
+
+                                </p>
+
+                            )
+
+                            : (
+
+                                <>
+
+                                    <OrderTable
+
+                                        orders={pagedOrders}
+
+                                        onUpdateStatus={handleUpdateStatus}
+
+                                    />
+
+                                    <Pagination
+
+                                        currentPage={currentPage}
+
+                                        totalItems={filteredOrders.length}
+
+                                        itemsPerPage={itemsPerPage}
+
+                                        onPageChange={setCurrentPage}
+
+                                    />
+
+                                </>
+
+                            )
+
                     }
 
                 </div>
@@ -189,10 +257,15 @@ function OrderManagement() {
             </div>
 
             <UpdateStatusModal
+
                 show={showModal}
+
                 order={selectedOrder}
+
                 onClose={() => setShowModal(false)}
+
                 onSave={handleSave}
+
             />
 
         </Layout>

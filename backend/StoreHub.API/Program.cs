@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using StoreHub.Domain.Entities;
+using StoreHub.API.Middleware;
+using StoreHub.API.Services.Interfaces;
 using StoreHub.Infrastructure.Data;
 using StoreHub.API.Mappings;
 using StoreHub.Application.Mappings;
@@ -12,7 +13,11 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers(options =>
+    {
+        options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+    });
 
 builder.Services.AddCors(options =>
 {
@@ -96,6 +101,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseCors("ReactPolicy");
 
 app.UseStaticFiles();
@@ -108,70 +115,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-await SeedAdminUserAsync(app);
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var adminSeedService = scope.ServiceProvider.GetRequiredService<IAdminSeedService>();
+    await adminSeedService.SeedAdminUserAsync();
+}
 
 app.Run();
-
-static async Task SeedAdminUserAsync(WebApplication app)
-{
-    var adminEmail = app.Configuration["AdminSeed:Email"]?.Trim().ToLowerInvariant();
-    var adminPassword = app.Configuration["AdminSeed:Password"]?.Trim();
-    var adminFullName = app.Configuration["AdminSeed:FullName"]?.Trim();
-
-    if (string.IsNullOrWhiteSpace(adminEmail) ||
-        string.IsNullOrWhiteSpace(adminPassword) ||
-        string.IsNullOrWhiteSpace(adminFullName))
-    {
-        return;
-    }
-
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-    var existingAdmin = await dbContext.Users
-        .FirstOrDefaultAsync(user => user.Email.ToLower() == adminEmail);
-
-    if (existingAdmin == null)
-    {
-        await dbContext.Users.AddAsync(new User
-        {
-            Id = Guid.NewGuid(),
-            FullName = adminFullName,
-            Email = adminEmail,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
-            IsAdmin = true,
-            IsActive = true,
-            CreatedDate = DateTime.UtcNow
-        });
-
-        await dbContext.SaveChangesAsync();
-        return;
-    }
-
-    var updated = false;
-
-    if (!existingAdmin.IsAdmin)
-    {
-        existingAdmin.IsAdmin = true;
-        updated = true;
-    }
-
-    if (!existingAdmin.IsActive)
-    {
-        existingAdmin.IsActive = true;
-        updated = true;
-    }
-
-    // Migrate legacy plain-text password to BCrypt for seeded admin.
-    if (!existingAdmin.PasswordHash.StartsWith("$2") && existingAdmin.PasswordHash == adminPassword)
-    {
-        existingAdmin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword);
-        updated = true;
-    }
-
-    if (updated)
-    {
-        existingAdmin.UpdatedDate = DateTime.UtcNow;
-        await dbContext.SaveChangesAsync();
-    }
-}

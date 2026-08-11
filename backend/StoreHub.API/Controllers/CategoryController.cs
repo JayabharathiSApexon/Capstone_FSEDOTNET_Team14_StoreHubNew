@@ -2,8 +2,9 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StoreHub.API.Models.Category;
+using StoreHub.API.Services.Interfaces;
 using StoreHub.Application.Interfaces.Services;
-using StoreHub.Application.Models.Category;
 
 namespace StoreHub.API.Controllers
 {
@@ -12,10 +13,14 @@ namespace StoreHub.API.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
+        private readonly ICategoryRequestMapper _categoryRequestMapper;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoryController(
+            ICategoryService categoryService,
+            ICategoryRequestMapper categoryRequestMapper)
         {
             _categoryService = categoryService;
+            _categoryRequestMapper = categoryRequestMapper;
         }
 
         [HttpGet]
@@ -42,9 +47,10 @@ namespace StoreHub.API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateCategory(CategoryRequestModel request)
+        public async Task<IActionResult> CreateCategory(CategoryRequest request)
         {
-            var category = await _categoryService.CreateCategoryAsync(request);
+            var categoryRequest = _categoryRequestMapper.ToApplicationModel(request);
+            var category = await _categoryService.CreateCategoryAsync(categoryRequest);
 
             return CreatedAtAction(
                 nameof(GetCategoryById),
@@ -54,9 +60,10 @@ namespace StoreHub.API.Controllers
 
         [HttpPut]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateCategory(CategoryRequestModel request)
+        public async Task<IActionResult> UpdateCategory(CategoryRequest request)
         {
-            var category = await _categoryService.UpdateCategoryAsync(request);
+            var categoryRequest = _categoryRequestMapper.ToApplicationModel(request);
+            var category = await _categoryService.UpdateCategoryAsync(categoryRequest);
 
             return Ok(category);
         }

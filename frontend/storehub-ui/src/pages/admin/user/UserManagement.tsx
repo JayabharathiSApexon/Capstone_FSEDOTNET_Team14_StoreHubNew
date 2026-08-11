@@ -1,31 +1,8 @@
-import { useEffect, useState } from "react";
 import Layout from "../../../components/admin/AdminLayout";
-import UserListItem from "../../../models/user/UserListItem";
-import { getUsers } from "../../../services/userService";
+import { useUserManagement } from "../../../hooks/admin/useUserManagement";
 
 function UserManagement() {
-    const [users, setUsers] = useState<UserListItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-
-    useEffect(() => {
-        loadUsers();
-    }, []);
-
-    const loadUsers = async () => {
-        try {
-            setError("");
-            const userData = await getUsers();
-            setUsers(userData);
-        }
-        catch (loadError: any) {
-            const message = loadError?.response?.data?.message;
-            setError(message ?? "Failed to load users.");
-        }
-        finally {
-            setLoading(false);
-        }
-    };
+    const { users, loading, error } = useUserManagement();
 
     return (
         <Layout>

@@ -14,9 +14,7 @@ namespace StoreHub.Application.Services
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
 
-        public ProductService(
-            IProductRepository productRepository,
-            IMapper mapper)
+        public ProductService(IProductRepository productRepository, IMapper mapper)
         {
             _productRepository = productRepository;
             _mapper = mapper;
@@ -34,13 +32,17 @@ namespace StoreHub.Application.Services
             var product = await _productRepository.GetProductByIdAsync(productId);
 
             if (product == null)
+            {
                 return null;
+            }
 
             return _mapper.Map<ProductResponseModel>(product);
         }
 
         public async Task<ProductResponseModel> CreateProductAsync(ProductRequestModel request)
         {
+            request.Description ??= string.Empty;
+
             var product = _mapper.Map<Product>(request);
 
             product.Id = Guid.NewGuid();
@@ -70,12 +72,14 @@ namespace StoreHub.Application.Services
             var product = await _productRepository.GetProductByIdAsync(request.Id);
 
             if (product == null)
+            {
                 throw new Exception("Product not found.");
+            }
 
             product.Name = request.Name;
             product.CategoryId = request.CategoryId;
-            product.Description = request.Description;
-            product.Brand = request.Brand;
+            product.Description = request.Description ?? string.Empty;
+            product.Brand = request.Brand ?? string.Empty;
             product.Price = request.Price;
             product.StockQuantity = request.StockQuantity;
             product.IsFeatured = request.IsFeatured;
@@ -107,12 +111,15 @@ namespace StoreHub.Application.Services
 
             return _mapper.Map<ProductResponseModel>(updatedProduct);
         }
+
         public async Task<ProductResponseModel> DeleteProductAsync(Guid productId)
         {
             var product = await _productRepository.GetProductByIdAsync(productId);
 
             if (product == null)
+            {
                 throw new Exception("Product not found.");
+            }
 
             var deletedProduct = await _productRepository.DeleteProductAsync(product);
 

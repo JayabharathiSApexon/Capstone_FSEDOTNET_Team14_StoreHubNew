@@ -7,16 +7,13 @@ import { getProducts } from "../../../services/productService";
 
 function InventoryList() {
 
-    const [inventory, setInventory] =
-        useState<ProductResponse[]>([]);
+    const [inventory, setInventory] = useState<ProductResponse[]>([]);
 
-    const [loading, setLoading] =
-        useState(true);
+    const [loading, setLoading] = useState(true);
+
+    const [currentPage, setCurrentPage] = useState(1);
 
     const itemsPerPage = 10;
-
-    const [currentPage, setCurrentPage] =
-        useState(1);
 
     useEffect(() => {
 
@@ -32,6 +29,8 @@ function InventoryList() {
 
             setInventory(data);
 
+            setCurrentPage(1);
+
         }
         catch (error) {
 
@@ -46,11 +45,9 @@ function InventoryList() {
 
     };
 
-    const indexOfLastItem =
-        currentPage * itemsPerPage;
+    const indexOfLastItem = currentPage * itemsPerPage;
 
-    const indexOfFirstItem =
-        indexOfLastItem - itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
     const currentInventory =
         inventory.slice(
@@ -60,18 +57,22 @@ function InventoryList() {
 
     return (
 
-        <Layout>
+        <Layout showHeader={false}>
 
             <div className="d-flex justify-content-between align-items-center mb-4">
 
                 <div>
 
-                    <h3 className="mb-0">
+                    <h4 className="mb-0">
+
                         Inventory Management
-                    </h3>
+
+                    </h4>
 
                     <small className="text-muted">
+
                         Monitor product inventory and stock levels
+
                     </small>
 
                 </div>
@@ -86,27 +87,36 @@ function InventoryList() {
 
                         loading
 
-                            ?
+                            ? (
 
-                            <p>Loading...</p>
+                                <p>
 
-                            :
+                                    Loading...
 
-                            <>
+                                </p>
 
-                                <InventoryTable
-                                    inventory={currentInventory}
-                                />
+                            )
 
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalItems={inventory.length}
-                                    itemsPerPage={itemsPerPage}
-                                    onPageChange={setCurrentPage}
-                                />
+                            : (
 
-                            </>
+                                <>
 
+                                    <InventoryTable
+
+                                        inventory={currentInventory}
+
+                                    />
+
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalItems={inventory.length}
+                                        itemsPerPage={itemsPerPage}
+                                        onPageChange={setCurrentPage}
+
+                                    />
+                                </>
+
+                            )
                     }
 
                 </div>

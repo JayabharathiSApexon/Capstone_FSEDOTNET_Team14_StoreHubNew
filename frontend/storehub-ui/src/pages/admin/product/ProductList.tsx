@@ -4,11 +4,12 @@ import ProductTable from "../../../components/admin/product/ProductTable";
 import ProductModal from "../../../components/admin/product/ProductModal";
 import MessageModal from "../../../components/common/MessageModal";
 import ConfirmModal from "../../../components/common/ConfirmModal";
+import Pagination from "../../../components/common/Pagination";
 import { ProductRequest } from "../../../models/product/ProductRequest";
 import { ProductResponse } from "../../../models/product/ProductResponse";
+import { CategoryResponse } from "../../../models/category/CategoryResponse";
 import { createProduct, updateProduct, getProducts, deleteProduct } from "../../../services/productService";
 import { getCategories } from "../../../services/categoryService";
-import { CategoryResponse } from "../../../models/category/CategoryResponse";
 
 function ProductList() {
 
@@ -20,15 +21,19 @@ function ProductList() {
     const [showMessageModal, setShowMessageModal] = useState(false);
     const [messageTitle, setMessageTitle] = useState("");
     const [messageText, setMessageText] = useState("");
-    const [messageType, setMessageType] =
-        useState<"success" | "danger">("success");
+    const [messageType, setMessageType] = useState<"success" | "danger">("success");
 
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [deleteProductId, setDeleteProductId] = useState("");
     const [deleteProductName, setDeleteProductName] = useState("");
+    const [selectedProduct, setSelectedProduct] = useState<ProductRequest | undefined>(undefined);
 
-    const [selectedProduct, setSelectedProduct] =
-        useState<ProductRequest | undefined>(undefined);
+    const itemsPerPage = 5;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
 
     useEffect(() => {
         loadData();
@@ -38,14 +43,18 @@ function ProductList() {
 
         try {
 
-            const [productData, categoryData] = await Promise.all([
-                getProducts(),
-                getCategories()
-            ]);
+            const [productData, categoryData] =
+                await Promise.all([
+
+                    getProducts(),
+                    getCategories()
+
+                ]);
 
             setProducts(productData);
             setCategories(categoryData);
 
+            setCurrentPage(1);
         }
         catch (error) {
 
@@ -57,6 +66,7 @@ function ProductList() {
             setLoading(false);
 
         }
+
     };
 
     const openAddModal = () => {
@@ -72,7 +82,7 @@ function ProductList() {
 
     };
 
-    const openEditModal = (product: ProductResponse) => {
+    const openEditModal = ( product: ProductResponse ) => {
 
         setSelectedProduct({
 
@@ -93,32 +103,37 @@ function ProductList() {
 
     };
 
-    const handleSubmit = async (product: ProductRequest) => {
+    const handleSubmit = async ( product: ProductRequest ) => {
 
         try {
 
             if (product.id) {
 
-                await updateProduct(product.id, product);
+                await updateProduct(
+                    product.id,
+                    product
+                );
 
-                closeModal();
+                setMessageText(
+                    `Product "${product.name}" updated successfully.`
+                );
 
-                await loadData();
-
-                setMessageTitle("Success");
-                setMessageText(`Product "${product.name}" has been updated successfully.`);
             }
             else {
 
                 await createProduct(product);
 
-                closeModal();
+                setMessageText(
+                    `Product "${product.name}" created successfully.`
+                );
 
-                await loadData();
-
-                setMessageTitle("Success");
-                setMessageText(`Product "${product.name}" has been created successfully.`);
             }
+
+            closeModal();
+
+            await loadData();
+
+            setMessageTitle("Success");
 
             setMessageType("success");
             setShowMessageModal(true);
@@ -129,12 +144,28 @@ function ProductList() {
             console.error(error);
 
             setMessageTitle("Operation Failed");
+
             setMessageText(
-                `Unable to ${product.id ? "update" : "create"} the product. Please try again.`
+                `Unable to ${product.id ? "update" : "create"} the product.`
             );
+            
             setMessageType("danger");
             setShowMessageModal(true);
         }
+
+    };
+
+    const handleDelete = (
+        id: string,
+        name: string
+    ) => {
+
+        setDeleteProductId(id);
+
+        setDeleteProductName(name);
+
+        setShowConfirmModal(true);
+
     };
 
     const confirmDelete = async () => {
@@ -148,10 +179,13 @@ function ProductList() {
             await loadData();
 
             setMessageTitle("Success");
+
             setMessageText(
-                `Product "${deleteProductName}" has been deleted successfully.`
+                `Product "${deleteProductName}" deleted successfully.`
             );
+
             setMessageType("success");
+
             setShowMessageModal(true);
 
         }
@@ -162,22 +196,16 @@ function ProductList() {
             setShowConfirmModal(false);
 
             setMessageTitle("Delete Failed");
+
             setMessageText(
-                `Unable to delete "${deleteProductName}". Please try again.`
+                `Unable to delete "${deleteProductName}".`
             );
+
             setMessageType("danger");
+
             setShowMessageModal(true);
 
         }
-
-    };
-
-    const handleDelete = (id: string, name: string) => {
-
-        setDeleteProductId(id);
-        setDeleteProductName(name);
-
-        setShowConfirmModal(true);
 
     };
 
@@ -189,9 +217,9 @@ function ProductList() {
 
                 <div>
 
-                    <h3 className="mb-0">
+                    <h4 className="mb-0">
                         Product Management
-                    </h3>
+                    </h4>
 
                     <small className="text-muted">
                         Manage all products
@@ -214,12 +242,27 @@ function ProductList() {
 
                     {
                         loading
-                            ? <p>Loading...</p>
-                            : <ProductTable
-                                products={products}
-                                onEdit={openEditModal}
-                                onDelete={handleDelete}
-                            />
+                            ? (
+                                <p>
+                                    Loading...
+                                </p>
+                            )
+                            : (
+                                <>
+                                    <ProductTable
+                                        products={currentProducts}
+                                        onEdit={openEditModal}
+                                        onDelete={handleDelete}
+                                    />
+
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalItems={products.length}
+                                        itemsPerPage={itemsPerPage}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                </>
+                            )
                     }
 
                 </div>
@@ -228,7 +271,11 @@ function ProductList() {
 
             <ProductModal
                 show={showModal}
-                title={selectedProduct ? "Edit Product" : "Add Product"}
+                title={
+                    selectedProduct
+                        ? "Edit Product"
+                        : "Add Product"
+                }
                 product={selectedProduct}
                 categories={categories}
                 onSubmit={handleSubmit}
@@ -240,7 +287,9 @@ function ProductList() {
                 title={messageTitle}
                 message={messageText}
                 variant={messageType}
-                onClose={() => setShowMessageModal(false)}
+                onClose={() =>
+                    setShowMessageModal(false)
+                }
             />
 
             <ConfirmModal
@@ -248,7 +297,9 @@ function ProductList() {
                 title="Delete Product"
                 message={`Are you sure you want to delete "${deleteProductName}"?`}
                 onConfirm={confirmDelete}
-                onCancel={() => setShowConfirmModal(false)}
+                onCancel={() =>
+                    setShowConfirmModal(false)
+                }
             />
 
         </Layout>
