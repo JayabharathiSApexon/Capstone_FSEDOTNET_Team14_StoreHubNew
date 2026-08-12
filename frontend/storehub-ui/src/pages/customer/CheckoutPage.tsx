@@ -400,7 +400,7 @@ function CheckoutPage() {
 
                                     <button
                                         type="submit"
-                                        className="btn checkout-order-btn mt-4"
+                                        className="checkout-order-btn mt-4"
                                         disabled={submitting || checkoutItems.length === 0}
                                     >
                                         {submitting
