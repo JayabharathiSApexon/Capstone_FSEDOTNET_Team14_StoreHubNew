@@ -124,7 +124,7 @@ function OrderManagement() {
 
     return (
 
-        <Layout showHeader={false}>
+        <Layout>
 
             <div className="d-flex justify-content-between align-items-center mb-4">
 
