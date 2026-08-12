@@ -1,96 +1,71 @@
+import api from "../api/axios";
 import OrderResponse from "../models/order/OrderResponse";
 import OrderUpdateRequest from "../models/order/OrderUpdateRequest";
-import api from "../api/axios";
-import { getCurrentUser } from "./authService";
 import MyOrderResponse from "../models/order/MyOrderResponse";
 
-const mockOrders: OrderResponse[] = [
-    {
-        id: crypto.randomUUID(),
-        orderNumber: "ORD-1001",
-        customerName: "John Doe",
-        amount: 79999,
-        status: "Pending"
-    },
-    {
-        id: crypto.randomUUID(),
-        orderNumber: "ORD-1002",
-        customerName: "Jane Smith",
-        amount: 3499,
-        status: "Processing"
-    },
-    {
-        id: crypto.randomUUID(),
-        orderNumber: "ORD-1003",
-        customerName: "Michael Johnson",
-        amount: 12999,
-        status: "Shipped"
-    },
-    {
-        id: crypto.randomUUID(),
-        orderNumber: "ORD-1004",
-        customerName: "David Miller",
-        amount: 4999,
-        status: "Delivered"
-    },
-    {
-        id: crypto.randomUUID(),
-        orderNumber: "ORD-1005",
-        customerName: "Emily Wilson",
-        amount: 8999,
-        status: "Cancelled"
-    }
-];
-
 export const getOrders = async (): Promise<OrderResponse[]> => {
-    return Promise.resolve(mockOrders);
+    try {
+        const response = await api.get<OrderResponse[]>("/Order");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch orders:", error);
+        throw error;
+    }
 };
 
-export const getOrdersByUser = async (userId: string): Promise<MyOrderResponse[]> => {
+export const getOrdersByUser = async (
+    userId: string
+): Promise<MyOrderResponse[]> => {
     try {
-        console.debug(`Fetching orders for user ${userId} -> ${api.defaults.baseURL}/Order/user/${userId}`);
-        const response = await api.get<MyOrderResponse[]>(`/Order/user/${userId}`);
+        const response = await api.get<MyOrderResponse[]>(
+            `/Order/user/${userId}`
+        );
         return response.data;
-    }
-    catch (err) {
-        console.error("getOrdersByUser failed:", err);
-        throw err;
+    } catch (error) {
+        console.error(
+            `Failed to fetch orders for user ${userId}:`,
+            error
+        );
+        throw error;
     }
 };
 
 export const getMyOrders = async (): Promise<MyOrderResponse[]> => {
-    // Use the authenticated "me" endpoint which reads user id from JWT claims
     try {
-        const response = await api.get<MyOrderResponse[]>('/Order/me');
+        const response = await api.get<MyOrderResponse[]>("/Order/me");
         return response.data;
-    }
-    catch (err) {
-        console.error('getMyOrders (me) failed:', err);
-        throw err;
+    } catch (error) {
+        console.error("Failed to fetch my orders:", error);
+        throw error;
     }
 };
 
 export const updateOrderStatus = async (
     request: OrderUpdateRequest
 ): Promise<boolean> => {
-
-    const order = mockOrders.find(x => x.id === request.orderId);
-
-    if (order) {
-        order.status = request.status;
-        return Promise.resolve(true);
+    try {
+        await api.put(`/Order/${request.orderId}/status`, request);
+        return true;
+    } catch (error) {
+        console.error(
+            `Failed to update order ${request.orderId} status:`,
+            error
+        );
+        throw error;
     }
-
-    return Promise.resolve(false);
 };
 
 export const getOrderTracking = async (orderId: string) => {
     try {
-        const response = await api.get<any>(`/Order/${orderId}/tracking`);
+        const response = await api.get(
+            `/Order/${orderId}/tracking`
+        );
         return response.data;
-    }
-    catch (err) {
-        console.error('getOrderTracking failed:', err);
-        throw err;
+    } catch (error) {
+        console.error(
+            `Failed to fetch tracking information for order ${orderId}:`,
+            error
+        );
+        throw error;
     }
 };
