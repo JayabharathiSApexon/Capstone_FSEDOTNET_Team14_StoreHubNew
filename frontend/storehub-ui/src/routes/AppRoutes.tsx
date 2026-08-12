@@ -8,6 +8,7 @@ import MyOrders from "../pages/customer/MyOrders";
 import OrderDetails from "../pages/customer/OrderDetails";
 import AuthPage from "../pages/auth/AuthPage";
 import ShoppingCart from "../pages/customer/ShoppingCart";
+import CheckoutPage from "../pages/customer/CheckoutPage";
 import { getCurrentUser, isAuthenticated } from "../services/authService";
 
 function AppRoutesContent() {
@@ -57,6 +58,15 @@ function AppRoutesContent() {
                 element={
                     authenticated
                         ? <ShoppingCart />
+                        : <Navigate to="/login" />
+                }
+            />
+
+            <Route
+                path="/checkout"
+                element={
+                    authenticated
+                        ? <CheckoutPage />
                         : <Navigate to="/login" />
                 }
             />

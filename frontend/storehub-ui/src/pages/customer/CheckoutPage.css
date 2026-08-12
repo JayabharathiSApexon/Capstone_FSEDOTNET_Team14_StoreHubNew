@@ -84,6 +84,14 @@
     color: #1d5fe9;
 }
 
+.checkout-item-image {
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #dfe5f1;
+}
+
 .checkout-item-name {
     font-size: 0.96rem;
     color: #24314f;
