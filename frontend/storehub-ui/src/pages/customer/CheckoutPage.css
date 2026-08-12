@@ -43,8 +43,8 @@
 
 .checkout-order-btn {
     width: 100%;
-    background: #1d5fe9;
-    border: none;
+    background-color: #1d5fe9;
+    border-color: #1d5fe9;
     color: #fff;
     min-height: 46px;
     border-radius: 10px;
@@ -52,7 +52,8 @@
 }
 
 .checkout-order-btn:hover {
-    background: #184fc2;
+    background-color: #184fc2;
+    border-color: #184fc2;
     color: #fff;
 }
 
