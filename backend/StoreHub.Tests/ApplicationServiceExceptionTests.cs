@@ -13,10 +13,9 @@ public class ApplicationServiceExceptionTests
     [Fact]
     public async Task ProductService_UpdateProductAsync_ShouldThrowNotFoundException_WhenProductDoesNotExist()
     {
-        var queryRepository = new MissingProductQueryRepository();
-        var commandRepository = new NoopProductCommandRepository();
+        var repository = new MissingProductRepository();
         var mapper = new MapperConfiguration(_ => { }).CreateMapper();
-        var service = new ProductService(queryRepository, commandRepository, mapper);
+        var service = new ProductService(repository, mapper);
 
         var request = new ProductRequestModel
         {
@@ -34,15 +33,14 @@ public class ApplicationServiceExceptionTests
     [Fact]
     public async Task CategoryService_DeleteCategoryAsync_ShouldThrowNotFoundException_WhenCategoryDoesNotExist()
     {
-        var queryRepository = new MissingCategoryQueryRepository();
-        var commandRepository = new NoopCategoryCommandRepository();
+        var repository = new MissingCategoryRepository();
         var mapper = new MapperConfiguration(_ => { }).CreateMapper();
-        var service = new CategoryService(queryRepository, commandRepository, mapper);
+        var service = new CategoryService(repository, mapper);
 
         await Assert.ThrowsAsync<NotFoundException>(() => service.DeleteCategoryAsync(Guid.NewGuid()));
     }
 
-    private sealed class MissingProductQueryRepository : IProductQueryRepository
+    private sealed class MissingProductRepository : IProductRepository
     {
         public Task<IEnumerable<Product>> GetAllProductsAsync()
         {
@@ -54,10 +52,6 @@ public class ApplicationServiceExceptionTests
             return Task.FromResult<Product?>(null);
         }
 
-    }
-
-    private sealed class NoopProductCommandRepository : IProductCommandRepository
-    {
         public Task<Product> CreateProductAsync(Product product)
         {
             throw new NotImplementedException();
@@ -79,7 +73,7 @@ public class ApplicationServiceExceptionTests
         }
     }
 
-    private sealed class MissingCategoryQueryRepository : ICategoryQueryRepository
+    private sealed class MissingCategoryRepository : ICategoryRepository
     {
         public Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
@@ -91,10 +85,6 @@ public class ApplicationServiceExceptionTests
             return Task.FromResult<Category?>(null);
         }
 
-    }
-
-    private sealed class NoopCategoryCommandRepository : ICategoryCommandRepository
-    {
         public Task<Category> CreateCategoryAsync(Category category)
         {
             throw new NotImplementedException();

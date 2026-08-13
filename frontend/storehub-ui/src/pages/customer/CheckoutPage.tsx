@@ -1,17 +1,18 @@
 import {
     FormEvent,
-    useMemo,
+    useEffect,
     useState
 } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
-    FaHeadphones,
-    FaKeyboard,
-    FaMouse
+    FaBoxOpen
 } from "react-icons/fa";
 
 import CustomerLayout
     from "../../components/customer/CustomerLayout";
+import { useCart } from "../../context/CartContext";
+import { clearCart } from "../../services/cartService";
 
 import "./CheckoutPage.css";
 
@@ -25,32 +26,8 @@ interface CheckoutItem {
     name: string;
     quantity: number;
     price: number;
-    icon: JSX.Element;
+    imageUrl?: string;
 }
-
-const checkoutItems: CheckoutItem[] = [
-    {
-        id: "keyboard",
-        name: "Wireless Keyboard",
-        quantity: 2,
-        price: 3998,
-        icon: <FaKeyboard />
-    },
-    {
-        id: "mouse",
-        name: "Wireless Mouse",
-        quantity: 1,
-        price: 799,
-        icon: <FaMouse />
-    },
-    {
-        id: "headset",
-        name: "Gaming Headset",
-        quantity: 1,
-        price: 2499,
-        icon: <FaHeadphones />
-    }
-];
 
 const currency = new Intl.NumberFormat(
     "en-IN",
@@ -62,6 +39,12 @@ const currency = new Intl.NumberFormat(
 );
 
 function CheckoutPage() {
+    const navigate = useNavigate();
+
+    const {
+        cart,
+        loadCart
+    } = useCart();
 
     const [fullName, setFullName] =
         useState("");
@@ -84,34 +67,132 @@ function CheckoutPage() {
     const [message, setMessage] =
         useState("");
 
-    const subtotal = useMemo(() => {
+    const [messageType, setMessageType] =
+        useState<"success" | "danger">("success");
 
-        return checkoutItems.reduce(
-            (total, item) =>
-                total + item.price,
-            0
-        );
+    const [submitting, setSubmitting] =
+        useState(false);
+
+    useEffect(() => {
+
+        loadCart();
 
     }, []);
 
-    const shipping = 0;
+    const checkoutItems: CheckoutItem[] =
+        cart?.items.map(item => ({
+            id: item.cartItemId,
+            name: item.productName,
+            quantity: item.quantity,
+            price: item.total,
+            imageUrl: item.imageUrl
+        })) ?? [];
 
-    const total =
-        subtotal + shipping;
+    const subtotal = cart?.subTotal ?? 0;
 
-    const handleSubmit = (
+    const shipping = cart?.shipping ?? 0;
+
+    const total = cart?.total ?? 0;
+
+    const handleSubmit = async (
         event: FormEvent<HTMLFormElement>
     ) => {
 
         event.preventDefault();
 
-        setMessage(
-            `Order placed successfully using ${paymentMethod.toUpperCase()}.`
-        );
+        setMessage("");
+
+        if (checkoutItems.length === 0) {
+
+            setMessageType("danger");
+
+            setMessage("Your cart is empty. Add products before checkout.");
+
+            return;
+
+        }
+
+        if (!/^\d{6}$/.test(pincode.trim())) {
+
+            setMessageType("danger");
+
+            setMessage("Please enter a valid 6-digit pincode.");
+
+            return;
+
+        }
+
+        if (!/^\d{10}$/.test(phoneNumber.trim())) {
+
+            setMessageType("danger");
+
+            setMessage("Please enter a valid 10-digit phone number.");
+
+            return;
+
+        }
+
+        setSubmitting(true);
+
+        const checkoutHistoryKey =
+            "storehub_checkout_history";
+
+        const orderSnapshot = {
+            id: `LOCAL-${Date.now()}`,
+            fullName,
+            address,
+            city,
+            pincode,
+            phoneNumber,
+            paymentMethod,
+            subtotal,
+            shipping,
+            total,
+            placedAt: new Date().toISOString(),
+            items: checkoutItems
+        };
+
+        try {
+
+            const existingOrders = JSON.parse(
+                localStorage.getItem(checkoutHistoryKey) ?? "[]"
+            ) as unknown[];
+
+            localStorage.setItem(
+                checkoutHistoryKey,
+                JSON.stringify([
+                    orderSnapshot,
+                    ...existingOrders
+                ])
+            );
+
+            await clearCart();
+
+            await loadCart();
+
+            setMessageType("success");
+
+            setMessage("Order placed successfully.");
+
+            setTimeout(() => {
+                navigate("/my-orders");
+            }, 1000);
+
+        } catch {
+
+            setMessageType("danger");
+
+            setMessage("Unable to place order. Please try again.");
+
+        } finally {
+
+            setSubmitting(false);
+
+        }
     };
 
     return (
-        <CustomerLayout>
+        <CustomerLayout showHeader={false}>
 
             {() => (
                 <div className="checkout-page container-fluid">
@@ -312,16 +393,19 @@ function CheckoutPage() {
                                     </div>
 
                                     {message && (
-                                        <div className="alert alert-success mt-4 mb-0 py-2">
+                                        <div className={`alert alert-${messageType} mt-4 mb-0 py-2`}>
                                             {message}
                                         </div>
                                     )}
 
                                     <button
                                         type="submit"
-                                        className="btn checkout-order-btn mt-4"
+                                        className="checkout-order-btn mt-4"
+                                        disabled={submitting || checkoutItems.length === 0}
                                     >
-                                        Place Order
+                                        {submitting
+                                            ? "Placing Order..."
+                                            : "Place Order"}
                                     </button>
 
                                 </form>
@@ -352,7 +436,15 @@ function CheckoutPage() {
                                                 <div className="checkout-item-main">
 
                                                     <span className="checkout-item-icon">
-                                                        {item.icon}
+                                                        {item.imageUrl ? (
+                                                            <img
+                                                                src={item.imageUrl}
+                                                                alt={item.name}
+                                                                className="checkout-item-image"
+                                                            />
+                                                        ) : (
+                                                            <FaBoxOpen />
+                                                        )}
                                                     </span>
 
                                                     <span className="checkout-item-name">
@@ -377,6 +469,12 @@ function CheckoutPage() {
 
                                             </div>
                                         )
+                                    )}
+
+                                    {checkoutItems.length === 0 && (
+                                        <p className="text-muted mb-0">
+                                            No items available for checkout.
+                                        </p>
                                     )}
 
                                 </div>

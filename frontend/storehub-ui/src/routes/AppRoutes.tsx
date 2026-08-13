@@ -3,11 +3,13 @@ import ProductList from "../pages/admin/product/ProductList";
 import InventoryList from "../pages/admin/Inventory/InventoryList";
 import OrderManagement from "../pages/admin/order/OrderManagement";
 import UserManagement from "../pages/admin/user/UserManagement";
+import AdminDashboard from "../pages/admin/dashboard/AdminDashboard";
 import ProductListing from "../pages/customer/ProductListing";
 import MyOrders from "../pages/customer/MyOrders";
 import OrderDetails from "../pages/customer/OrderDetails";
 import AuthPage from "../pages/auth/AuthPage";
 import ShoppingCart from "../pages/customer/ShoppingCart";
+import CheckoutPage from "../pages/customer/CheckoutPage";
 import { getCurrentUser, isAuthenticated } from "../services/authService";
 
 function AppRoutesContent() {
@@ -16,7 +18,7 @@ function AppRoutesContent() {
     const authenticated = isAuthenticated();
     const currentUser = getCurrentUser();
     const isAdmin = currentUser?.isAdmin ?? false;
-    const defaultRoute = isAdmin ? "/admin/products" : "/customer";
+    const defaultRoute = isAdmin ? "/admin/dashboard" : "/customer";
 
     return (
 
@@ -62,6 +64,15 @@ function AppRoutesContent() {
             />
 
             <Route
+                path="/checkout"
+                element={
+                    authenticated
+                        ? <CheckoutPage />
+                        : <Navigate to="/login" />
+                }
+            />
+
+            <Route
                 path="/"
                 element={<Navigate to={authenticated ? defaultRoute : "/login"} />}
             />
@@ -70,6 +81,13 @@ function AppRoutesContent() {
                 path="/admin/products"
                 element={authenticated
                     ? (isAdmin ? <ProductList /> : <Navigate to="/customer" />)
+                    : <Navigate to="/login" />}
+            />
+
+            <Route
+                path="/admin/dashboard"
+                element={authenticated
+                    ? (isAdmin ? <AdminDashboard /> : <Navigate to="/customer" />)
                     : <Navigate to="/login" />}
             />
 
