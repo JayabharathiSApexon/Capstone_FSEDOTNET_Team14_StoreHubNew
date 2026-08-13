@@ -3,6 +3,8 @@ using StoreHub.API.Models.Category;
 using StoreHub.API.Models.Product;
 using StoreHub.Application.Models.Category;
 using StoreHub.Application.Models.Product;
+using StoreHub.Application.Models.Order;
+using StoreHub.Domain.Entities;
 
 namespace StoreHub.API.Mappings
 {
@@ -13,6 +15,7 @@ namespace StoreHub.API.Mappings
             CreateMap<CategoryRequest, CategoryRequestModel>();
             CreateMap<CreateProductRequest, ProductRequestModel>().ForMember(dest => dest.Images, opt => opt.Ignore());
             CreateMap<UpdateProductRequest, ProductRequestModel>().ForMember(dest => dest.Images, opt => opt.Ignore());
+            CreateMap<Order, MyOrderResponseModel>();
         }
     }
 }

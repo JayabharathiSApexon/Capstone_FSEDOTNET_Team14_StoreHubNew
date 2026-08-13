@@ -6,6 +6,6 @@ namespace StoreHub.Application.Interfaces.Services
 {
     public interface ITrackingService
     {
-        Task<TrackingResponseModel?> GetTrackingService(Guid orderId);
+        Task<TrackingResponseModel?> GetTrackingDetailsAsync(Guid orderId);
     }
 }

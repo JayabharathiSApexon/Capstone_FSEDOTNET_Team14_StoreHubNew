@@ -32,5 +32,21 @@ namespace StoreHub.Infrastructure.Repositories
                 .Include(order => order.TrackingHistory.OrderBy(t => t.StatusDate))
                 .FirstOrDefaultAsync(order => order.Id == orderId);
         }
+
+        public async Task<IEnumerable<Order>> GetAllOrdersAsync()
+        {
+            return await _context.Orders
+                .OrderByDescending(order => order.OrderDate)
+                .ToListAsync();
+        }
+
+        public async Task SaveOrderStatusChangeAsync(Order order, OrderTrackingHistory trackingHistory)
+        {
+            _context.Orders.Update(order);
+
+            await _context.OrderTrackingHistory.AddAsync(trackingHistory);
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

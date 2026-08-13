@@ -6,6 +6,7 @@ interface TrackingResponse {
     orderDate: string;
     expectedDeliveryDate: string;
     totalAmount: number;
+    status: string;
     products: TrackingProduct[];
     trackingHistory: TrackingStatus[];
 }

@@ -29,7 +29,7 @@ function ProductListing() {
     const [messageType, setMessageType] = useState<"success" | "danger">("success");
 
     // Shared Cart Context
-    const { setCart } = useCart();
+    const { loadCart } = useCart();
 
     useEffect(() => {
         loadData();
@@ -72,9 +72,8 @@ function ProductListing() {
     ) => {
 
         try {
-
-            // POST returns the latest cart
-            const updatedCart = await addToCart({
+            
+            await addToCart({
 
                 productId: product.id,
 
@@ -82,8 +81,8 @@ function ProductListing() {
 
             });
 
-            // Update shared cart context immediately
-            setCart(updatedCart);
+            // Reload latest cart from server
+            await loadCart();
 
             setMessageTitle("Success");
 
