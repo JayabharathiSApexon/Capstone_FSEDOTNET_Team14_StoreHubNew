@@ -10,5 +10,9 @@ namespace StoreHub.Application.Interfaces.Repositories
         Task<IEnumerable<Order>> GetOrdersByUserIdAsync(Guid userId);
 
         Task<Order?> GetOrderByIdAsync(Guid orderId);
+
+        Task<IEnumerable<Order>> GetAllOrdersAsync();
+
+        Task SaveOrderStatusChangeAsync(Order order, OrderTrackingHistory trackingHistory);
     }
 }

@@ -100,9 +100,11 @@ function AppRoutesContent() {
 
             <Route
                 path="/admin/orders"
-                element={authenticated
-                    ? (isAdmin ? <OrderManagement /> : <Navigate to="/customer" />)
-                    : <Navigate to="/login" />}
+                element={
+                    authenticated
+                        ? (isAdmin ? <OrderManagement /> : <Navigate to="/customer" />)
+                        : <Navigate to="/login" />
+                }
             />
 
             <Route

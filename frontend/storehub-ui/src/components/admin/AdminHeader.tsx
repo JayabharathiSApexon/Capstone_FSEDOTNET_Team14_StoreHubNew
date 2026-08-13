@@ -37,9 +37,7 @@ function AdminHeader() {
                     className="btn btn-outline-danger btn-sm"
                     onClick={handleLogout}
                 >
-
                     Logout
-
                 </button>
 
             </div>
@@ -47,7 +45,6 @@ function AdminHeader() {
         </nav>
 
     );
-
 }
 
 export default AdminHeader;

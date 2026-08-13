@@ -4,6 +4,7 @@ interface ConfirmModalProps {
     show: boolean;
     title: string;
     message: string;
+    confirmText?: string;
     onConfirm: () => void;
     onCancel: () => void;
 }
@@ -12,6 +13,7 @@ function ConfirmModal({
     show,
     title,
     message,
+    confirmText = "Confirm",
     onConfirm,
     onCancel
 }: ConfirmModalProps) {
@@ -39,18 +41,17 @@ function ConfirmModal({
                     variant="secondary"
                     onClick={onCancel}
                 >
-                    Cancel
+                    No
                 </Button>
 
                 <Button
                     variant="danger"
                     onClick={onConfirm}
                 >
-                    Delete
+                    {confirmText}
                 </Button>
 
             </Modal.Footer>
-
         </Modal>
     );
 }

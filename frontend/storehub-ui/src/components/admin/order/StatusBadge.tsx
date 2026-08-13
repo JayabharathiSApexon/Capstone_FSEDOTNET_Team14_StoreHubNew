@@ -29,16 +29,14 @@ function StatusBadge({
         case "Cancelled":
             badgeClass = "badge bg-danger";
             break;
+
     }
 
     return (
-
         <span className={badgeClass}>
             {status}
         </span>
-
     );
-
 }
 
 export default StatusBadge;

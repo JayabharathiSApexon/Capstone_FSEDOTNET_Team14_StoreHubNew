@@ -1,9 +1,9 @@
-import OrderResponse from "../../../models/order/OrderResponse";
+import MyOrderResponse from "../../../models/order/MyOrderResponse";
 import StatusBadge from "./StatusBadge";
 
 interface OrderTableProps {
-    orders: OrderResponse[];
-    onUpdateStatus: (order: OrderResponse) => void;
+    orders: MyOrderResponse[];
+    onUpdateStatus: (order: MyOrderResponse) => void;
 }
 
 function OrderTable({
@@ -23,7 +23,9 @@ function OrderTable({
 
                         <th>Order No</th>
 
-                        <th>Customer</th>
+                        <th>Customer ID</th>
+
+                        <th>Order Date</th>
 
                         <th>Amount</th>
 
@@ -45,11 +47,34 @@ function OrderTable({
 
                             <tr key={order.id}>
 
-                                <td>{order.orderNumber}</td>
+                                <td>
+                                    {order.id
+                                        .slice(0, 8)
+                                        .toUpperCase()}
+                                </td>
 
-                                <td>{order.customerName}</td>
+                                <td>
+                                    {order.userId
+                                        .slice(0, 8)
+                                        .toUpperCase()}
+                                </td>
 
-                                <td>₹{order.amount.toLocaleString()}</td>
+                                <td>
+                                    {new Date(
+                                        order.orderDate
+                                    ).toLocaleDateString(
+                                        "en-GB",
+                                        {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric"
+                                        }
+                                    )}
+                                </td>
+
+                                <td>
+                                    ₹{order.totalAmount.toLocaleString("en-IN")}
+                                </td>
 
                                 <td>
                                     <StatusBadge
@@ -60,8 +85,11 @@ function OrderTable({
                                 <td className="text-center">
 
                                     <button
+                                        type="button"
                                         className="btn btn-primary btn-sm"
-                                        onClick={() => onUpdateStatus(order)}
+                                        onClick={() =>
+                                            onUpdateStatus(order)
+                                        }
                                     >
                                         Update Status
                                     </button>
@@ -77,8 +105,8 @@ function OrderTable({
                         <tr>
 
                             <td
-                                colSpan={5}
-                                className="text-center"
+                                colSpan={6}
+                                className="text-center py-4"
                             >
                                 No orders found.
                             </td>
@@ -94,7 +122,6 @@ function OrderTable({
         </div>
 
     );
-
 }
 
 export default OrderTable;

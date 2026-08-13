@@ -12,7 +12,10 @@ interface CartContextType {
 
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+const CartContext =
+    createContext<CartContextType | undefined>(
+        undefined
+    );
 
 interface CartProviderProps {
 
@@ -56,11 +59,9 @@ export function CartProvider({
 
     const cartCount =
         cart?.items.reduce(
-
-            (total, item) => total + item.quantity,
-
+            (total, item) =>
+                total + item.quantity,
             0
-
         ) ?? 0;
 
     return (

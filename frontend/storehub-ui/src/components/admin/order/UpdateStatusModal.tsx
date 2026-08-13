@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import OrderResponse from "../../../models/order/OrderResponse";
+import MyOrderResponse from "../../../models/order/MyOrderResponse";
 
 interface UpdateStatusModalProps {
     show: boolean;
-    order: OrderResponse | null;
+    order: MyOrderResponse | null;
     onClose: () => void;
     onSave: (status: string) => void;
 }
@@ -18,9 +18,11 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     const [status, setStatus] = useState("");
 
     useEffect(() => {
+
         if (order) {
             setStatus(order.status);
         }
+
     }, [order]);
 
     if (!show || !order) {
@@ -28,14 +30,21 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
     }
 
     return (
+
         <div
             className="modal fade show"
-            style={{ display: "block", backgroundColor: "rgba(0,0,0,.5)" }}
+            style={{
+                display: "block",
+                backgroundColor: "rgba(0,0,0,.5)"
+            }}
         >
+
             <div className="modal-dialog modal-dialog-centered">
+
                 <div className="modal-content">
 
                     <div className="modal-header">
+
                         <h5 className="modal-title">
                             Update Order Status
                         </h5>
@@ -45,6 +54,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                             className="btn-close"
                             onClick={onClose}
                         />
+
                     </div>
 
                     <div className="modal-body">
@@ -52,19 +62,52 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                         <div className="mb-3">
 
                             <label className="form-label">
-                                Status
+                                Order ID
+                            </label>
+
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={order.id}
+                                readOnly
+                            />
+
+                        </div>
+
+                        <div className="mb-3">
+
+                            <label className="form-label">
+                                Current Status
                             </label>
 
                             <select
                                 className="form-select"
                                 value={status}
-                                onChange={(e) => setStatus(e.target.value)}
+                                onChange={(e) =>
+                                    setStatus(e.target.value)
+                                }
                             >
-                                <option value="Pending">Pending</option>
-                                <option value="Processing">Processing</option>
-                                <option value="Shipped">Shipped</option>
-                                <option value="Delivered">Delivered</option>
-                                <option value="Cancelled">Cancelled</option>
+
+                                <option value="Pending">
+                                    Pending
+                                </option>
+
+                                <option value="Processing">
+                                    Processing
+                                </option>
+
+                                <option value="Shipped">
+                                    Shipped
+                                </option>
+
+                                <option value="Delivered">
+                                    Delivered
+                                </option>
+
+                                <option value="Cancelled">
+                                    Cancelled
+                                </option>
+
                             </select>
 
                         </div>
@@ -74,6 +117,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                     <div className="modal-footer">
 
                         <button
+                            type="button"
                             className="btn btn-secondary"
                             onClick={onClose}
                         >
@@ -81,6 +125,7 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                         </button>
 
                         <button
+                            type="button"
                             className="btn btn-primary"
                             onClick={() => onSave(status)}
                         >
@@ -90,8 +135,11 @@ const UpdateStatusModal: React.FC<UpdateStatusModalProps> = ({
                     </div>
 
                 </div>
+
             </div>
+
         </div>
+
     );
 };
 
