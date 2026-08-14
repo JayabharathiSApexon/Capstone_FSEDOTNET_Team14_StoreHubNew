@@ -46,7 +46,7 @@ function MyOrders() {
     };
 
     return (
-        <CustomerLayout>
+        <CustomerLayout showHeader={false}>
             {() => (
                 <div className="container-fluid py-4">
                     <h4 className="fw-bold mb-4">

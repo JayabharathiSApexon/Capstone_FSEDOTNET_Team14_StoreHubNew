@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<ITrackingService, TrackingService>();
         services.AddScoped<ICartService, CartService>();
+        services.AddScoped<IProfileService, ProfileService>();
 
         // API services
         services.AddScoped<IAuthService, AuthService>();
