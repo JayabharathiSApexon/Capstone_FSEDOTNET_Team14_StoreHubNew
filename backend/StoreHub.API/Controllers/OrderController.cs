@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StoreHub.Application.Interfaces.Services;
+using StoreHub.Application.Models.Order;
 using System.Security.Claims;
 
 namespace StoreHub.API.Controllers
@@ -16,6 +17,37 @@ namespace StoreHub.API.Controllers
         {
             _orderService = orderService;
             _trackingService = trackingService;
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderCreateRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Get userId from claims
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { Message = "User id claim not found or invalid." });
+                }
+
+                // Set the userId from claims
+                request.UserId = userId;
+
+                var order = await _orderService.CreateOrderAsync(request);
+                return CreatedAtAction(nameof(GetTracking), new { orderId = order.Id }, order);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
         }
 
         [HttpGet("user/{userId:guid}")]

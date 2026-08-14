@@ -8,5 +8,7 @@ namespace StoreHub.Application.Interfaces.Services
     public interface IOrderService
     {
         Task<IEnumerable<MyOrderResponseModel>> GetOrdersByUserIdAsync(Guid userId);
+
+        Task<MyOrderResponseModel> CreateOrderAsync(OrderCreateRequest request);
     }
 }
