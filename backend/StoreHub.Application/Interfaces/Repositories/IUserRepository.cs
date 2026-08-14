@@ -14,6 +14,8 @@ namespace StoreHub.Application.Interfaces.Repositories
 
         Task<IReadOnlyList<User>> GetAllUsersOrderedByCreatedDateDescAsync();
 
+        Task<User?> GetActiveUserByIdAsync(Guid userId);
+
         Task AddAsync(User user);
 
         Task SaveChangesAsync();

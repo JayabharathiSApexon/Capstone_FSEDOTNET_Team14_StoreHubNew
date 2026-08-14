@@ -48,6 +48,14 @@ namespace StoreHub.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<User?> GetActiveUserByIdAsync(Guid userId)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(user =>
+                    user.Id == userId &&
+                    user.IsActive);
+        }
+
         public async Task AddAsync(User user)
         {
             await _context.Users.AddAsync(user);
