@@ -24,6 +24,12 @@ function CustomerSidebar() {
 
     const orderId = orderDetailsMatch?.[1];
 
+    const productDetailsMatch = location.pathname.match(
+        /^\/customer\/products\/([^/]+)$/
+    );
+
+    const productId = productDetailsMatch?.[1];
+
     const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
         `nav-link d-flex align-items-center mb-2 px-3 py-2 rounded ${isActive ? "bg-primary text-white" : "text-white"
         }`;
@@ -60,6 +66,17 @@ function CustomerSidebar() {
                 <FaHome className="me-2" />
                 Home
             </NavLink>
+
+            {productId && (
+                <NavLink
+                    to={`/customer/products/${productId}`}
+                    end
+                    className={getNavLinkClass}
+                >
+                    <FaClipboardList className="me-2" />
+                    Product Details
+                </NavLink>
+            )}
 
             <NavLink
                 to="/shopping-cart"

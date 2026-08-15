@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Card, Button, Badge } from "react-bootstrap";
 import { ProductResponse } from "../../../models/product/ProductResponse";
 
@@ -10,6 +11,8 @@ function ProductCard({
     product,
     onAddToCart
 }: ProductCardProps) {
+
+    const navigate = useNavigate();
 
     const primaryImage =
         product.images.find(image => image.isPrimary) ??
@@ -42,22 +45,39 @@ function ProductCard({
 
             )}
 
-            <Card.Img
-                variant="top"
-                src={imageUrl}
-                alt={product.name}
+            <div
+                onClick={() =>
+                    navigate(`/customer/products/${product.id}`)
+                }
                 style={{
-                    height: "220px",
-                    width: "100%",
-                    objectFit: "contain",
-                    padding: "10px",
-                    backgroundColor: "#fff"
+                    cursor: "pointer"
                 }}
-            />
+            >
+                <Card.Img
+                    variant="top"
+                    src={imageUrl}
+                    alt={product.name}
+                    style={{
+                        height: "220px",
+                        width: "100%",
+                        objectFit: "contain",
+                        padding: "10px",
+                        backgroundColor: "#fff"
+                    }}
+                />
+            </div>
 
             <Card.Body className="d-flex flex-column">
 
-                <h6 className="fw-semibold mb-1">
+                <h6
+                    className="fw-semibold mb-1 text-primary"
+                    onClick={() =>
+                        navigate(`/customer/products/${product.id}`)
+                    }
+                    style={{
+                        cursor: "pointer"
+                    }}
+                >
                     {product.name}
                 </h6>
 

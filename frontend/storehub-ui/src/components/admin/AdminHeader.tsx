@@ -1,3 +1,4 @@
+import { FaUserCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "../../services/authService";
 
@@ -25,6 +26,10 @@ function AdminHeader() {
         >
 
             <div className="ms-auto d-flex align-items-center">
+                <FaUserCircle
+                    size={24}
+                    className="me-2"
+                />
 
                 <span className="text-muted me-3">
 
