@@ -5,6 +5,7 @@ import OrderManagement from "../pages/admin/order/OrderManagement";
 import UserManagement from "../pages/admin/user/UserManagement";
 import AdminDashboard from "../pages/admin/dashboard/AdminDashboard";
 import ProductListing from "../pages/customer/ProductListing";
+import ProductDetails from "../pages/customer/ProductDetails";
 import MyOrders from "../pages/customer/MyOrders";
 import OrderDetails from "../pages/customer/OrderDetails";
 import AuthPage from "../pages/auth/AuthPage";
@@ -53,6 +54,15 @@ function AppRoutesContent() {
             <Route
                 path="/customer/orders/:id"
                 element={authenticated ? <OrderDetails /> : <Navigate to="/login" />}
+            />
+
+            <Route
+                path="/customer/products/:id"
+                element={
+                    authenticated
+                        ? <ProductDetails />
+                        : <Navigate to="/login" />
+                }
             />
 
             <Route
