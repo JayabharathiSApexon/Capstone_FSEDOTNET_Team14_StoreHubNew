@@ -12,11 +12,13 @@ namespace StoreHub.Application.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository, IMapper mapper)
+        public OrderService(IOrderRepository orderRepository, IProductRepository productRepository, IMapper mapper)
         {
             _orderRepository = orderRepository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
 
@@ -130,6 +132,18 @@ namespace StoreHub.Application.Services
 
             await _orderRepository.SaveOrderStatusChangeAsync(order, trackingHistory);
 
+            // Restore stock for cancelled order items
+            foreach (var orderItem in order.OrderItems)
+            {
+                var product = await _productRepository.GetProductByIdAsync(orderItem.ProductId);
+                if (product != null)
+                {
+                    product.StockQuantity += orderItem.Quantity;
+                    product.UpdatedDate = DateTime.UtcNow;
+                    await _productRepository.UpdateProductAsync(product);
+                }
+            }
+
             return true;
         }
 
@@ -205,6 +219,22 @@ namespace StoreHub.Application.Services
             // Save to database
             await _orderRepository.AddOrderAsync(order);
             await _orderRepository.SaveChangesAsync();
+
+            // Reduce stock for each product
+            foreach (var item in request.Items)
+            {
+                var product = await _productRepository.GetProductByIdAsync(item.ProductId);
+                if (product != null)
+                {
+                    product.StockQuantity -= item.Quantity;
+                    if (product.StockQuantity < 0)
+                    {
+                        product.StockQuantity = 0;
+                    }
+                    product.UpdatedDate = DateTime.UtcNow;
+                    await _productRepository.UpdateProductAsync(product);
+                }
+            }
 
             // Map and return response
             return _mapper.Map<MyOrderResponseModel>(order);
