@@ -14,5 +14,9 @@ namespace StoreHub.Application.Interfaces.Repositories
         Task<IEnumerable<Order>> GetAllOrdersAsync();
 
         Task SaveOrderStatusChangeAsync(Order order, OrderTrackingHistory trackingHistory);
+
+        Task<Order> AddOrderAsync(Order order);
+
+        Task SaveChangesAsync();
     }
 }

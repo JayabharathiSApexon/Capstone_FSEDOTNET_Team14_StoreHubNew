@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import OrderResponse from "../../models/order/OrderResponse";
+import MyOrderResponse from "../../models/order/MyOrderResponse";
 import { getOrders, updateOrderStatus } from "../../services/orderService";
 import { useAsyncState } from "../common/useAsyncState";
 
 export const useOrderManagement = () => {
-    const [orders, setOrders] = useState<OrderResponse[]>([]);
+    const [orders, setOrders] = useState<MyOrderResponse[]>([]);
     const { loading, runSafely } = useAsyncState(true);
     const [showModal, setShowModal] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<MyOrderResponse | null>(null);
     const [statusFilter, setStatusFilter] = useState("All");
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -31,7 +31,7 @@ export const useOrderManagement = () => {
         }
     };
 
-    const handleUpdateStatus = (order: OrderResponse) => {
+    const handleUpdateStatus = (order: MyOrderResponse) => {
         setSelectedOrder(order);
         setShowModal(true);
     };

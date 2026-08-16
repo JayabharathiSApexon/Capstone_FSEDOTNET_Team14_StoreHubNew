@@ -13,7 +13,7 @@ import AdminLayout from "../../../components/admin/AdminLayout";
 import { getProducts } from "../../../services/productService";
 import { getOrderTracking, getOrders } from "../../../services/orderService";
 import { ProductResponse } from "../../../models/product/ProductResponse";
-import OrderResponse from "../../../models/order/OrderResponse";
+import MyOrderResponse from "../../../models/order/MyOrderResponse";
 import "./AdminDashboard.css";
 
 const START_MONTH = new Date(2026, 0, 1);
@@ -31,7 +31,7 @@ interface OrderTrackingLite {
 }
 
 interface DashboardOrderDetail {
-    order: OrderResponse;
+    order: MyOrderResponse;
     orderDate: Date | null;
     products: Array<{ name: string; quantity: number }>;
 }
@@ -100,7 +100,7 @@ function AdminDashboard() {
                 setProducts(productsResult.value);
             }
 
-            let resolvedOrders: OrderResponse[] = [];
+            let resolvedOrders: MyOrderResponse[] = [];
 
             if (ordersResult.status === "fulfilled") {
                 resolvedOrders = ordersResult.value;
@@ -212,7 +212,7 @@ function AdminDashboard() {
     }, [products]);
 
     const totalRevenue = useMemo(() => {
-        return filteredOrders.reduce((sum, order) => sum + order.amount, 0);
+        return filteredOrders.reduce((sum, order) => sum + order.totalAmount, 0);
     }, [filteredOrders]);
 
     const pendingOrders = useMemo(() => {
@@ -231,7 +231,7 @@ function AdminDashboard() {
         const buckets = new Array<number>(bucketCount).fill(0);
 
         filteredOrders.forEach((order, index) => {
-            buckets[index % bucketCount] += order.amount;
+            buckets[index % bucketCount] += order.totalAmount;
         });
 
         let runningTotal = 0;
