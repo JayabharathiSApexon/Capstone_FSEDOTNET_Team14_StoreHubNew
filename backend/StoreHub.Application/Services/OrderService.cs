@@ -6,19 +6,32 @@ using StoreHub.Application.Interfaces.Repositories;
 using StoreHub.Application.Interfaces.Services;
 using StoreHub.Application.Models.Order;
 using StoreHub.Domain.Entities;
+using StoreHub.Domain.Enums;
 
 namespace StoreHub.Application.Services
 {
+    /// <summary>
+    /// Service for managing order operations.
+    /// Follows Single Responsibility Principle by delegating inventory concerns to IInventoryService
+    /// and status validation to IOrderStatusValidator.
+    /// Follows Dependency Inversion Principle by depending on abstractions, not concrete implementations.
+    /// </summary>
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IProductRepository _productRepository;
+        private readonly IInventoryService _inventoryService;
+        private readonly IOrderStatusValidator _statusValidator;
         private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository, IProductRepository productRepository, IMapper mapper)
+        public OrderService(
+            IOrderRepository orderRepository,
+            IInventoryService inventoryService,
+            IOrderStatusValidator statusValidator,
+            IMapper mapper)
         {
             _orderRepository = orderRepository;
-            _productRepository = productRepository;
+            _inventoryService = inventoryService;
+            _statusValidator = statusValidator;
             _mapper = mapper;
         }
 
@@ -39,61 +52,59 @@ namespace StoreHub.Application.Services
         {
             if (string.IsNullOrWhiteSpace(status))
             {
-                throw new Exception("Order status is required.");
+                throw new ArgumentException("Order status is required.", nameof(status));
             }
 
-            var newStatus = status.Trim();
-
-            var allowedStatuses = new[]
+            if (!Enum.TryParse<OrderStatus>(status.Trim(), ignoreCase: true, out var newStatus))
             {
-                "Pending",
-                "Processing",
-                "Shipped",
-                "Delivered",
-                "Cancelled"
-            };
-
-            if (!allowedStatuses.Contains(newStatus, StringComparer.OrdinalIgnoreCase))
-            {
-                throw new Exception("Invalid order status.");
+                var validStatuses = string.Join(", ", Enum.GetNames(typeof(OrderStatus)));
+                throw new ArgumentException(
+                    $"Invalid order status. Valid statuses are: {validStatuses}", 
+                    nameof(status));
             }
 
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
-
             if (order == null)
             {
                 return false;
             }
 
-            if (string.Equals(order.Status, newStatus, StringComparison.OrdinalIgnoreCase))
+            // Parse current status for validation
+            if (!Enum.TryParse<OrderStatus>(order.Status, ignoreCase: true, out var currentStatus))
             {
-                throw new Exception($"Order status is already '{order.Status}'.");
+                throw new InvalidOperationException($"Order has invalid status: {order.Status}");
+            }
+
+            // Validate status transition
+            if (!_statusValidator.IsValidTransition(currentStatus, newStatus))
+            {
+                var validNextStatuses = string.Join(", ", _statusValidator.GetValidNextStatuses(currentStatus));
+                throw new InvalidOperationException(
+                    $"Cannot transition from '{order.Status}' to '{newStatus}'. " +
+                    $"Valid next statuses are: {validNextStatuses}");
             }
 
             var currentDate = DateTime.UtcNow;
-
-            order.Status = newStatus;
+            order.Status = newStatus.ToString();
             order.UpdatedDate = currentDate;
 
             var trackingHistory = new OrderTrackingHistory
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
-                Status = newStatus,
+                Status = newStatus.ToString(),
                 StatusDate = currentDate,
                 Remarks = $"Order status updated to {newStatus}.",
                 CreatedDate = currentDate
             };
 
             await _orderRepository.SaveOrderStatusChangeAsync(order, trackingHistory);
-
             return true;
         }
 
         public async Task<bool> CancelOrderAsync(Guid orderId, Guid userId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
-
             if (order == null)
             {
                 return false;
@@ -101,30 +112,35 @@ namespace StoreHub.Application.Services
 
             if (order.UserId != userId)
             {
-                throw new Exception("You are not authorized to cancel this order.");
+                throw new InvalidOperationException("You are not authorized to cancel this order.");
             }
 
-            if (string.Equals(order.Status, "Cancelled", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(order.Status, OrderStatus.Cancelled.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception("Order is already cancelled.");
+                throw new InvalidOperationException("Order is already cancelled.");
             }
 
-            if (string.Equals(order.Status, "Shipped", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(order.Status, "Delivered", StringComparison.OrdinalIgnoreCase))
+            // Parse current status for validation
+            if (!Enum.TryParse<OrderStatus>(order.Status, ignoreCase: true, out var currentStatus))
             {
-                throw new Exception("This order cannot be cancelled.");
+                throw new InvalidOperationException($"Order has invalid status: {order.Status}");
+            }
+
+            // Validate that cancellation is allowed from current status
+            if (!_statusValidator.IsValidTransition(currentStatus, OrderStatus.Cancelled))
+            {
+                throw new InvalidOperationException("This order cannot be cancelled.");
             }
 
             var currentDate = DateTime.UtcNow;
-
-            order.Status = "Cancelled";
+            order.Status = OrderStatus.Cancelled.ToString();
             order.UpdatedDate = currentDate;
 
             var trackingHistory = new OrderTrackingHistory
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
-                Status = "Cancelled",
+                Status = OrderStatus.Cancelled.ToString(),
                 StatusDate = currentDate,
                 Remarks = "Order cancelled by customer.",
                 CreatedDate = currentDate
@@ -132,16 +148,15 @@ namespace StoreHub.Application.Services
 
             await _orderRepository.SaveOrderStatusChangeAsync(order, trackingHistory);
 
-            // Restore stock for cancelled order items
-            foreach (var orderItem in order.OrderItems)
+            // Restore stock for cancelled order items using IInventoryService (SRP and DIP)
+            try
             {
-                var product = await _productRepository.GetProductByIdAsync(orderItem.ProductId);
-                if (product != null)
-                {
-                    product.StockQuantity += orderItem.Quantity;
-                    product.UpdatedDate = DateTime.UtcNow;
-                    await _productRepository.UpdateProductAsync(product);
-                }
+                await _inventoryService.RestoreStockAsync(order.OrderItems);
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new InvalidOperationException(
+                    "Order was cancelled but stock restoration failed. Please contact support.", ex);
             }
 
             return true;
@@ -151,35 +166,47 @@ namespace StoreHub.Application.Services
         {
             if (request == null)
             {
-                throw new Exception("Order request is required.");
+                throw new ArgumentNullException(nameof(request), "Order request is required.");
             }
 
             if (string.IsNullOrWhiteSpace(request.ShippingAddress))
             {
-                throw new Exception("Shipping address is required.");
+                throw new ArgumentException("Shipping address is required.", nameof(request.ShippingAddress));
             }
 
             if (string.IsNullOrWhiteSpace(request.ZipCode))
             {
-                throw new Exception("ZipCode is required.");
+                throw new ArgumentException("ZipCode is required.", nameof(request.ZipCode));
             }
 
             if (request.Items == null || !request.Items.Any())
             {
-                throw new Exception("Order must contain at least one item.");
+                throw new ArgumentException("Order must contain at least one item.", nameof(request.Items));
             }
 
             if (request.TotalAmount <= 0)
             {
-                throw new Exception("Total amount must be greater than zero.");
+                throw new ArgumentException("Total amount must be greater than zero.", nameof(request.TotalAmount));
             }
 
+            // Validate and reserve stock for all items before creating order
+            foreach (var item in request.Items)
+            {
+                var reserved = await _inventoryService.ReserveStockAsync(item.ProductId, item.Quantity);
+                if (!reserved)
+                {
+                    throw new InvalidOperationException(
+                        $"Insufficient stock for product ID {item.ProductId}. Cannot complete order.");
+                }
+            }
+
+            // Create order with reserved items
             var order = new Order
             {
                 Id = Guid.NewGuid(),
                 UserId = request.UserId,
                 TotalAmount = request.TotalAmount,
-                Status = "Pending",
+                Status = OrderStatus.Pending.ToString(),
                 ShippingAddress = request.ShippingAddress,
                 City = request.City,
                 State = request.State ?? string.Empty,
@@ -209,7 +236,7 @@ namespace StoreHub.Application.Services
             {
                 Id = Guid.NewGuid(),
                 OrderId = order.Id,
-                Status = "Pending",
+                Status = OrderStatus.Pending.ToString(),
                 StatusDate = DateTime.UtcNow,
                 Remarks = "Order placed successfully",
                 CreatedDate = DateTime.UtcNow
@@ -219,22 +246,6 @@ namespace StoreHub.Application.Services
             // Save to database
             await _orderRepository.AddOrderAsync(order);
             await _orderRepository.SaveChangesAsync();
-
-            // Reduce stock for each product
-            foreach (var item in request.Items)
-            {
-                var product = await _productRepository.GetProductByIdAsync(item.ProductId);
-                if (product != null)
-                {
-                    product.StockQuantity -= item.Quantity;
-                    if (product.StockQuantity < 0)
-                    {
-                        product.StockQuantity = 0;
-                    }
-                    product.UpdatedDate = DateTime.UtcNow;
-                    await _productRepository.UpdateProductAsync(product);
-                }
-            }
 
             // Map and return response
             return _mapper.Map<MyOrderResponseModel>(order);

@@ -27,6 +27,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITrackingService, TrackingService>();
         services.AddScoped<ICartService, CartService>();
         services.AddScoped<IProfileService, ProfileService>();
+        
+        // SOLID Principle Implementation - Dependency Inversion
+        services.AddScoped<IInventoryService, InventoryService>();
+        services.AddScoped<IOrderStatusValidator, OrderStatusValidator>();
 
         // API services
         services.AddScoped<IAuthService, AuthService>();
