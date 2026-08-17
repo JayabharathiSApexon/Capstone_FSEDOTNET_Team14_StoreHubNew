@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomerLayout from "../../components/customer/CustomerLayout";
+import ProfileHeader from "../../components/customer/ProfileHeader";
 import StatusBadge from "../../components/admin/order/StatusBadge";
 import Pagination from "../../components/common/Pagination";
 import MyOrderResponse from "../../models/order/MyOrderResponse";
@@ -48,7 +49,9 @@ function MyOrders() {
     return (
         <CustomerLayout showHeader={false}>
             {() => (
-                <div className="container-fluid py-4">
+                <>
+                    <ProfileHeader />
+                    <div className="container-fluid py-4" style={{ marginTop: "72px" }}>
                     <h4 className="fw-bold mb-4">
                         My Orders
                     </h4>
@@ -156,7 +159,8 @@ function MyOrders() {
                             )}
                         </div>
                     </div>
-                </div>
+                    </div>
+                </>
             )}
         </CustomerLayout>
     );

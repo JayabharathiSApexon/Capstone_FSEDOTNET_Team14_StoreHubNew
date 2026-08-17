@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomerLayout from "../../components/customer/CustomerLayout";
+import ProfileHeader from "../../components/customer/ProfileHeader";
 import CartTable from "../../components/customer/cart/CartTable";
 import CartSummary from "../../components/customer/cart/CartSummary";
 import MessageModal from "../../components/common/MessageModal";
@@ -223,13 +224,15 @@ function ShoppingCart() {
     return (
 
         <CustomerLayout
-            showHeader={true}
-            isShoppingCart={true}
+            showHeader={false}
+            isShoppingCart={false}
         >
 
             {() => (
+                <>
+                    <ProfileHeader />
 
-                <div className="container-fluid py-4">
+                    <div className="container-fluid py-4" style={{ marginTop: "72px" }}>
 
                     {
 
@@ -382,6 +385,7 @@ function ShoppingCart() {
                     />
 
                 </div>
+                </>
 
             )}
 
