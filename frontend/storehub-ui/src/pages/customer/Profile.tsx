@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 
 import CustomerLayout from "../../components/customer/CustomerLayout";
+import ProfileHeader from "../../components/customer/ProfileHeader";
 
 import {
     getProfile,
@@ -243,8 +244,10 @@ function Profile() {
         <CustomerLayout showHeader={false}>
 
             {() => (
+                <>
+                    <ProfileHeader />
 
-                <div className="container-fluid py-4">
+                    <div className="container-fluid py-4" style={{ marginTop: "72px" }}>
 
                     {/* Page Header */}
 
@@ -593,6 +596,7 @@ function Profile() {
                     )}
 
                 </div>
+                </>
 
             )}
 
