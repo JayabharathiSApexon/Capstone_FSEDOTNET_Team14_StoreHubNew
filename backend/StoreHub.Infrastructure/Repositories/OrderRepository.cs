@@ -48,5 +48,16 @@ namespace StoreHub.Infrastructure.Repositories
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Order> AddOrderAsync(Order order)
+        {
+            await _context.Orders.AddAsync(order);
+            return order;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

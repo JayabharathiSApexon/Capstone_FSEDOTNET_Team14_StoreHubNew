@@ -14,5 +14,7 @@ namespace StoreHub.Application.Interfaces.Services
         Task<bool> UpdateOrderStatusAsync(Guid orderId, string status);
 
         Task<bool> CancelOrderAsync(Guid orderId, Guid userId);
+
+        Task<MyOrderResponseModel> CreateOrderAsync(OrderCreateRequest request);
     }
 }

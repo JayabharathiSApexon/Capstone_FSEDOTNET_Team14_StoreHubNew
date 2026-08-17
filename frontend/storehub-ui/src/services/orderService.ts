@@ -1,6 +1,7 @@
 import api from "../api/axios";
 import MyOrderResponse from "../models/order/MyOrderResponse";
 import OrderUpdateRequest from "../models/order/OrderUpdateRequest";
+import OrderCreateRequest from "../models/order/OrderCreateRequest";
 
 export const getOrders = async (): Promise<MyOrderResponse[]> => {
     try {
@@ -106,6 +107,23 @@ export const cancelOrder = async (
             error
         );
 
+        throw error;
+    }
+};
+
+export const createOrder = async (
+    request: OrderCreateRequest
+): Promise<any> => {
+    try {
+        const response = await api.post(
+            "/Order",
+            request
+        );
+
+        return response.data;
+    }
+    catch (error) {
+        console.error("Failed to create order:", error);
         throw error;
     }
 };

@@ -13,6 +13,9 @@ import CustomerLayout
     from "../../components/customer/CustomerLayout";
 import { useCart } from "../../context/CartContext";
 import { clearCart } from "../../services/cartService";
+import { createOrder } from "../../services/orderService";
+import { getAuthUser } from "../../utils/auth";
+import OrderCreateRequest from "../../models/order/OrderCreateRequest";
 
 import "./CheckoutPage.css";
 
@@ -134,37 +137,41 @@ function CheckoutPage() {
 
         setSubmitting(true);
 
-        const checkoutHistoryKey =
-            "storehub_checkout_history";
-
-        const orderSnapshot = {
-            id: `LOCAL-${Date.now()}`,
-            fullName,
-            address,
-            city,
-            pincode,
-            phoneNumber,
-            paymentMethod,
-            subtotal,
-            shipping,
-            total,
-            placedAt: new Date().toISOString(),
-            items: checkoutItems
-        };
-
         try {
 
-            const existingOrders = JSON.parse(
-                localStorage.getItem(checkoutHistoryKey) ?? "[]"
-            ) as unknown[];
+            const authUser = getAuthUser();
 
-            localStorage.setItem(
-                checkoutHistoryKey,
-                JSON.stringify([
-                    orderSnapshot,
-                    ...existingOrders
-                ])
-            );
+            if (!authUser || !authUser.userId) {
+
+                setMessageType("danger");
+
+                setMessage("User not authenticated. Please log in first.");
+
+                setSubmitting(false);
+
+                return;
+
+            }
+
+            const orderData: OrderCreateRequest = {
+                userId: authUser.userId,
+                fullName,
+                shippingAddress: address,
+                city,
+                state: "",
+                zipCode: pincode,
+                phoneNumber,
+                paymentMethod,
+                totalAmount: total,
+                items: cart?.items.map(item => ({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    unitPrice: item.price,
+                    totalPrice: item.total
+                })) ?? []
+            };
+
+            await createOrder(orderData);
 
             await clearCart();
 
@@ -178,11 +185,24 @@ function CheckoutPage() {
                 navigate("/my-orders");
             }, 1000);
 
-        } catch {
+        } catch (error) {
+
+            let errorMessage = "Unable to place order. Please try again.";
+
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            } else if (typeof error === 'object' && error !== null) {
+                const apiError = error as any;
+                if (apiError.response?.data?.message) {
+                    errorMessage = apiError.response.data.message;
+                } else if (apiError.response?.data) {
+                    errorMessage = JSON.stringify(apiError.response.data);
+                }
+            }
 
             setMessageType("danger");
 
-            setMessage("Unable to place order. Please try again.");
+            setMessage(errorMessage);
 
         } finally {
 

@@ -155,5 +155,40 @@ namespace StoreHub.API.Controllers
                 });
             }
         }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderCreateRequest request)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new
+                    {
+                        Message = "User id claim not found or invalid."
+                    });
+                }
+
+                request.UserId = userId;
+
+                var result = await _orderService.CreateOrderAsync(request);
+
+                return Ok(new
+                {
+                    Message = "Order placed successfully.",
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Message = ex.Message
+                });
+            }
+        }
     }
 }
