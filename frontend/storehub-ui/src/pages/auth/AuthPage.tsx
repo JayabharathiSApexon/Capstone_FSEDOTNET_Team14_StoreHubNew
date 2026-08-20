@@ -115,7 +115,7 @@ function AuthPage({ mode }: AuthPageProps) {
                 saveSessionLoginPreference();
             }
 
-            navigate(authResponse.isAdmin ? "/admin/products" : "/customer");
+            navigate(authResponse.isAdmin ? "/admin/dashboard" : "/customer");
         }
         catch (requestError: any) {
             setError(getApiErrorMessage(requestError, "Authentication failed. Please try again."));

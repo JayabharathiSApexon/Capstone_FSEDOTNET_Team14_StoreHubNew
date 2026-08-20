@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import ProductList from "../pages/admin/product/ProductList";
 import InventoryList from "../pages/admin/Inventory/InventoryList";
 import OrderManagement from "../pages/admin/order/OrderManagement";
@@ -21,6 +22,10 @@ function AppRoutesContent() {
     const currentUser = getCurrentUser();
     const isAdmin = currentUser?.isAdmin ?? false;
     const defaultRoute = isAdmin ? "/admin/dashboard" : "/customer";
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
 
     return (
 

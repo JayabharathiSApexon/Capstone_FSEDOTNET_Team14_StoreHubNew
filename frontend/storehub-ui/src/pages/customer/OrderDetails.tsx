@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 
 import CustomerLayout from "../../components/customer/CustomerLayout";
 import ConfirmModal from "../../components/common/ConfirmModal";
@@ -13,6 +13,8 @@ import {
 } from "../../services/orderService";
 
 import "./OrderDetails.css";
+
+const apiBaseUrl = import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "");
 
 function OrderDetails() {
 
@@ -163,7 +165,7 @@ function OrderDetails() {
     };
 
     return (
-        <CustomerLayout>
+        <CustomerLayout showHeader={false}>
             {() => (
                 <div className="container-fluid py-4">
 
@@ -205,71 +207,94 @@ function OrderDetails() {
 
                     ) : tracking ? (
 
-                        <div className="row align-items-stretch">
+                        <div className="row g-4">
 
                             {/* Items */}
 
                             <div className="col-md-6">
 
-                                <div className="card shadow-sm h-100">
+                                <div className="card shadow-sm order-items-card">
 
-                                    <div className="card-body order-items">
+                                    <div className="card-body">
 
-                                        <h4 className="mb-4">
-                                            Items
-                                        </h4>
+                                        <div className="d-flex justify-content-between align-items-center mb-4">
 
-                                        {tracking.products.map(
-                                            product => (
+                                            <h4 className="mb-0">
+                                                Items
+                                            </h4>
+
+                                            <span className="badge bg-light text-dark">
+                                                {tracking.products.length}{" "}
+                                                {tracking.products.length === 1
+                                                    ? "Item"
+                                                    : "Items"}
+                                            </span>
+
+                                        </div>
+
+                                        <div className="order-product-list">
+
+                                            {tracking.products.map(product => (
 
                                                 <div
-                                                    key={
-                                                        product.productId
-                                                    }
-                                                    className="d-flex align-items-center mb-3"
+                                                    key={product.productId}
+                                                    className="order-product-item"
                                                 >
 
-                                                    <img
-                                                        src={
-                                                            product.imageUrl ||
-                                                            "/placeholder.png"
-                                                        }
-                                                        alt={
-                                                            product.name
-                                                        }
-                                                        className="me-3"
-                                                    />
-
-                                                    <div>
-
-                                                        <div className="fw-bold">
-                                                            {
-                                                                product.name
+                                                    <NavLink
+                                                        to={`/customer/products/${product.productId}`}
+                                                        className="order-product-image"
+                                                        title={`View ${product.productName}`}
+                                                    >
+                                                        <img
+                                                            src={
+                                                                product.imageUrl
+                                                                    ? `${apiBaseUrl}${product.imageUrl}`
+                                                                    : "/placeholder.png"
                                                             }
-                                                        </div>
+                                                            alt={product.productName}
+                                                            onError={(event) => {
+                                                                event.currentTarget.src =
+                                                                    "/placeholder.png";
+                                                            }}
+                                                        />
+                                                    </NavLink>
 
-                                                        <div className="text-muted">
-                                                            Qty :{" "}
-                                                            {
-                                                                product.quantity
-                                                            }
+                                                    <div className="order-product-info">
+
+                                                        <NavLink
+                                                            to={`/customer/products/${product.productId}`}
+                                                            className="order-product-name text-decoration-none"
+                                                        >
+                                                            {product.productName}
+                                                        </NavLink>
+
+                                                        <div className="text-muted small mt-1">
+                                                            Quantity: {product.quantity}
                                                         </div>
 
                                                     </div>
 
                                                 </div>
 
-                                            )
-                                        )}
+                                            ))}
 
-                                        <hr />
+                                        </div>
 
-                                        <h5 className="fw-bold">
-                                            Total Amount : ₹
-                                            {Number(
-                                                tracking.totalAmount
-                                            ).toLocaleString()}
-                                        </h5>
+                                        <div className="order-total">
+
+                                            <span>
+                                                Total Amount
+                                            </span>
+
+                                            <strong>
+                                                ₹
+                                                {Number(
+                                                    tracking.totalAmount
+                                                ).toLocaleString("en-IN")}
+                                            </strong>
+
+                                        </div>
 
                                     </div>
 
@@ -282,7 +307,7 @@ function OrderDetails() {
 
                             <div className="col-md-6">
 
-                                <div className="card shadow-sm h-100">
+                                <div className="card shadow-sm h-100 order-status-card">
 
                                     <div className="card-body">
 
