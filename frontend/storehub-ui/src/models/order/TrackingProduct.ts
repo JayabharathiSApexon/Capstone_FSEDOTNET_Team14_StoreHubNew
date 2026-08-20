@@ -1,6 +1,6 @@
 interface TrackingProduct {
     productId: string;
-    name: string;
+    productName: string;
     quantity: number;
     imageUrl?: string;
 }
