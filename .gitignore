@@ -34,11 +34,6 @@ appsettings.Development.json
 packages/
 
 # ==========================
-# Uploaded files
-# ==========================
-**/wwwroot/uploads/
-
-# ==========================
 # React / Node
 # ==========================
 frontend/storehub-ui/node_modules/
