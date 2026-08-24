@@ -1,5 +1,6 @@
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { ProductResponse } from "../../../models/product/ProductResponse";
+const API_BASE_URL = import.meta.env.VITE_API_URL.replace(/\/api$/, "");
 
 interface ProductTableProps {
     products: ProductResponse[];
@@ -31,7 +32,7 @@ function ProductTable({ products, onEdit, onDelete }: ProductTableProps) {
                                 <td>
                                     {product.images.length > 0 ? (
                                         <img
-                                            src={`http://localhost:5103${product.images[0].imageUrl}`}
+                                            src={`${API_BASE_URL}${product.images[0].imageUrl}`}
                                             alt={product.name}
                                             width="60"
                                             height="60"
