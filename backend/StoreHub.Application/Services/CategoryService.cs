@@ -6,6 +6,7 @@ using StoreHub.Application.Interfaces.Repositories;
 using StoreHub.Application.Interfaces.Services;
 using StoreHub.Application.Models.Category;
 using StoreHub.Domain.Entities;
+using StoreHub.Application.Exceptions;
 
 namespace StoreHub.Application.Services
 {
@@ -56,7 +57,7 @@ namespace StoreHub.Application.Services
             var category = await _categoryRepository.GetCategoryByIdAsync(request.Id);
 
             if (category == null)
-                throw new Exception("Category not found.");
+                throw new NotFoundException("Category not found.");
 
             _mapper.Map(request, category);
 
@@ -72,7 +73,7 @@ namespace StoreHub.Application.Services
             var category = await _categoryRepository.GetCategoryByIdAsync(categoryId);
 
             if (category == null)
-                throw new Exception("Category not found.");
+                throw new NotFoundException("Category not found.");
 
             var deletedCategory = await _categoryRepository.DeleteCategoryAsync(category);
 

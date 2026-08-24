@@ -6,6 +6,7 @@ using StoreHub.Application.Interfaces.Repositories;
 using StoreHub.Application.Interfaces.Services;
 using StoreHub.Application.Models.Product;
 using StoreHub.Domain.Entities;
+using StoreHub.Application.Exceptions;
 
 namespace StoreHub.Application.Services
 {
@@ -73,7 +74,7 @@ namespace StoreHub.Application.Services
 
             if (product == null)
             {
-                throw new Exception("Product not found.");
+                throw new NotFoundException("Product not found.");
             }
 
             product.Name = request.Name;
@@ -118,7 +119,7 @@ namespace StoreHub.Application.Services
 
             if (product == null)
             {
-                throw new Exception("Product not found.");
+                throw new NotFoundException("Product not found.");
             }
 
             var deletedProduct = await _productRepository.DeleteProductAsync(product);
