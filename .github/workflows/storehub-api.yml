@@ -1,0 +1,50 @@
+name: Deploy StoreHub API to Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore solution
+        run: dotnet restore backend/StoreHub.sln
+
+      - name: Build solution
+        run: dotnet build backend/StoreHub.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test backend/StoreHub.Tests/StoreHub.Tests.csproj --configuration Release --no-build
+
+      - name: Publish API
+        run: dotnet publish backend/StoreHub.API/StoreHub.API.csproj --configuration Release --output ./publish
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy API to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: storehub-api
+          package: ./publish
