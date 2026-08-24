@@ -19,14 +19,21 @@ builder.Services
         options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
     });
 
+var allowedOrigins = new[]
+{
+    builder.Configuration["AllowedOrigins:LocalUrl"],
+    builder.Configuration["AllowedOrigins:ProdUrl"]
+}
+.Where(origin => !string.IsNullOrWhiteSpace(origin))
+.Select(origin => origin!)
+.ToArray();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ReactPolicy", policy =>
     {
-        policy.SetIsOriginAllowed(origin =>
-            Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
-            uri.Scheme == "http" &&
-            uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase))
+        policy
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
