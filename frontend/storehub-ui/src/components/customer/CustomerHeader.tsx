@@ -67,37 +67,64 @@ function CustomerHeader({
                             {/* Shopping Cart Page */}
 
                             <span className="fw-semibold fs-5">
-
                                 Shopping Cart
-
                             </span>
 
+                            <div className="ms-auto d-flex align-items-center">
 
-                            <div
-                                className="ms-auto position-relative"
-                                style={{
-                                    cursor: "pointer"
-                                }}
-                                onClick={() =>
-                                    navigate("/shopping-cart")
-                                }
-                            >
+                                {/* Cart */}
 
-                                <FaShoppingCart
+                                <div
+                                    className="position-relative me-4"
+                                    style={{
+                                        cursor: "pointer"
+                                    }}
+                                    onClick={() =>
+                                        navigate("/shopping-cart")
+                                    }
+                                >
+
+                                    <FaShoppingCart
+                                        size={24}
+                                    />
+
+                                    {
+                                        cartCount > 0 && (
+
+                                            <span
+                                                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                            >
+                                                {cartCount}
+                                            </span>
+
+                                        )
+                                    }
+
+                                </div>
+
+
+                                {/* User */}
+
+                                <FaUserCircle
                                     size={24}
+                                    className="me-2"
                                 />
 
-                                {
-                                    cartCount > 0 && (
+                                <span className="me-3">
 
-                                        <span
-                                            className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                        >
-                                            {cartCount}
-                                        </span>
+                                    {currentUser?.fullName ?? "Guest"}
 
-                                    )
-                                }
+                                </span>
+
+
+                                {/* Logout */}
+
+                                <button
+                                    className="btn btn-outline-danger btn-sm"
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </button>
 
                             </div>
 
