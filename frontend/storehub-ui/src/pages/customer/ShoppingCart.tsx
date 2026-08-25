@@ -224,15 +224,12 @@ function ShoppingCart() {
     return (
 
         <CustomerLayout
-            showHeader={false}
-            isShoppingCart={false}
+            showHeader={true}
+            isShoppingCart={true}
         >
 
             {() => (
                 <>
-                    <ProfileHeader />
-
-                    <div className="container-fluid py-4" style={{ marginTop: "72px" }}>
 
                     {
 
@@ -384,7 +381,6 @@ function ShoppingCart() {
 
                     />
 
-                </div>
                 </>
 
             )}

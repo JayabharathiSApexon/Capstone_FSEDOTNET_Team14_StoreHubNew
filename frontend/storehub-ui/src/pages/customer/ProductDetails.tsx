@@ -12,6 +12,7 @@ import { getProductById } from "../../services/productService";
 import { addToCart } from "../../services/cartService";
 
 import { useCart } from "../../context/CartContext";
+import ProfileHeader from "../../components/customer/ProfileHeader";
 
 function ProductDetails() {
 
@@ -374,9 +375,11 @@ function ProductDetails() {
             {() => (
 
                 <>
+                    <ProfileHeader />
+                    <div className="container-fluid py-1" style={{ marginTop: "72px" }}>
 
                     <div
-                        className="container-fluid py-4"
+                        className="container-fluid py-2"
                         style={{
                             maxWidth: "1600px",
                             margin: "0 auto"
@@ -391,9 +394,9 @@ function ProductDetails() {
 
                             <div>
 
-                                <h2 className="fw-bold mb-1">
+                                <h4 className="fw-bold mb-1">
                                     Product Details
-                                </h2>
+                                </h4>
 
                                 <p className="text-muted mb-0">
                                     View product information and add it to your cart.
@@ -781,8 +784,10 @@ function ProductDetails() {
                             setShowMessageModal(false)
                         }
                     />
+                    </div>
 
                 </>
+                
 
             )}
 
