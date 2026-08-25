@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomerLayout from "../../components/customer/CustomerLayout";
-import ProfileHeader from "../../components/customer/ProfileHeader";
 import CartTable from "../../components/customer/cart/CartTable";
 import CartSummary from "../../components/customer/cart/CartSummary";
 import MessageModal from "../../components/common/MessageModal";
