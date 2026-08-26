@@ -21,6 +21,14 @@ public class ProfileServiceTests
     }
 
     [Fact]
+    public async Task Given_MissingUser_When_GetProfile_Then_ReturnsNull()
+    {
+        var result = await new ProfileService(new TestUserRepository()).GetProfileAsync(Guid.NewGuid());
+
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task Given_MissingUser_When_UpdateProfile_Then_ReturnsUserNotFound()
     {
         var service = new ProfileService(new TestUserRepository());
@@ -57,5 +65,23 @@ public class ProfileServiceTests
 
         Assert.Equal(UpdateProfileResult.EmailAlreadyExists, result);
         Assert.Equal(0, repository.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task Given_SameEmailAndNullPhone_When_UpdateProfile_Then_SavesNormalizedValues()
+    {
+        var user = new User { Id = Guid.NewGuid(), FullName = "Old", Email = "old@example.com" };
+        var repository = new TestUserRepository { User = user, ExistingUser = user };
+
+        var result = await new ProfileService(repository).UpdateProfileAsync(user.Id, new UpdateProfileRequest
+        {
+            FullName = " New Name ",
+            Email = " OLD@EXAMPLE.COM ",
+            PhoneNumber = null!
+        });
+
+        Assert.Equal(UpdateProfileResult.Success, result);
+        Assert.Equal(string.Empty, user.PhoneNumber);
+        Assert.Equal(1, repository.SaveChangesCalls);
     }
 }

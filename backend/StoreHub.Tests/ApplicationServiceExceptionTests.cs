@@ -40,6 +40,22 @@ public class ApplicationServiceExceptionTests
         await Assert.ThrowsAsync<NotFoundException>(() => service.DeleteCategoryAsync(Guid.NewGuid()));
     }
 
+    [Fact]
+    public async Task ProductService_DeleteProductAsync_ShouldThrowNotFoundException_WhenProductDoesNotExist()
+    {
+        var service = new ProductService(new MissingProductRepository(), new MapperConfiguration(_ => { }).CreateMapper());
+
+        await Assert.ThrowsAsync<NotFoundException>(() => service.DeleteProductAsync(Guid.NewGuid()));
+    }
+
+    [Fact]
+    public async Task CategoryService_UpdateCategoryAsync_ShouldThrowNotFoundException_WhenCategoryDoesNotExist()
+    {
+        var service = new CategoryService(new MissingCategoryRepository(), new MapperConfiguration(_ => { }).CreateMapper());
+
+        await Assert.ThrowsAsync<NotFoundException>(() => service.UpdateCategoryAsync(new CategoryRequestModel { Id = Guid.NewGuid() }));
+    }
+
     private sealed class MissingProductRepository : IProductRepository
     {
         public Task<IEnumerable<Product>> GetAllProductsAsync()
